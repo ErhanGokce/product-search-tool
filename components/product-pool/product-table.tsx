@@ -1,0 +1,256 @@
+import { Trash2 } from "lucide-react";
+
+import { deleteProduct } from "@/app/dashboard/product-pool/actions";
+import {
+  calculateOpportunityScore,
+  getOpportunityScoreMeta,
+} from "@/components/product-pool/opportunity-score";
+import { ProductFormDialog } from "@/components/product-pool/product-form-dialog";
+import type {
+  ProductCategory,
+  ProductPoolItem,
+  ProductSubCategory,
+} from "@/components/product-pool/types";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+
+type ProductTableProps = {
+  categories: ProductCategory[];
+  products: ProductPoolItem[];
+  subCategories: ProductSubCategory[];
+};
+
+const columns = [
+  "Urun adi",
+  "Pazaryeri",
+  "Kategori",
+  "Alt kategori",
+  "Indirimli fiyat",
+  "Normal fiyat",
+  "Degerlendirme",
+  "Yorum",
+  "Favori",
+  "Satici",
+  "Firsat Skoru",
+  "Uygun mu?",
+  "Pazaryeri saticisi",
+  "Buyuk satici",
+  "Notlar",
+  "Olusturulma",
+  "Islemler",
+];
+
+function formatNumber(value: number | null) {
+  return (value ?? 0).toLocaleString("tr-TR");
+}
+
+function formatPrice(value: ProductPoolItem["discounted_price"]) {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  const numberValue = typeof value === "number" ? value : Number(value);
+
+  if (!Number.isFinite(numberValue)) {
+    return "-";
+  }
+
+  return new Intl.NumberFormat("tr-TR", {
+    currency: "TRY",
+    maximumFractionDigits: 2,
+    style: "currency",
+  }).format(numberValue);
+}
+
+function formatDate(value: string | null) {
+  if (!value) {
+    return "-";
+  }
+
+  return new Intl.DateTimeFormat("tr-TR", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
+
+function BooleanBadge({
+  active,
+  label,
+}: {
+  active: boolean | null;
+  label: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full px-2 py-1 text-xs font-medium",
+        active
+          ? "bg-emerald-50 text-emerald-700"
+          : "bg-slate-100 text-slate-500",
+      )}
+    >
+      {active ? label : "Hayir"}
+    </span>
+  );
+}
+
+function OpportunityBadge({ product }: { product: ProductPoolItem }) {
+  const score = calculateOpportunityScore(product);
+  const meta = getOpportunityScoreMeta(score);
+
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold",
+        meta.className,
+      )}
+    >
+      {score}
+      <span className="font-medium">/ {meta.label}</span>
+    </span>
+  );
+}
+
+function ProductNameCell({ name }: { name: string }) {
+  return (
+    <div className="group relative max-w-[220px]">
+      <p className="truncate whitespace-nowrap font-medium text-slate-950">
+        {name}
+      </p>
+      <div className="pointer-events-none absolute left-0 top-full z-30 mt-2 hidden max-w-sm rounded-xl bg-slate-950 px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg group-hover:block">
+        {name}
+      </div>
+    </div>
+  );
+}
+
+export function ProductTable({
+  categories,
+  products,
+  subCategories,
+}: ProductTableProps) {
+  if (products.length === 0) {
+    return (
+      <Card className="border-slate-200 bg-white shadow-sm">
+        <CardContent className="flex min-h-72 flex-col items-center justify-center text-center">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+            0
+          </div>
+          <h2 className="mt-4 text-lg font-semibold tracking-normal text-slate-950">
+            Urun havuzu bos
+          </h2>
+          <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+            Ilk urunu ekleyerek pazaryeri, fiyat ve rekabet verilerini takip
+            etmeye baslayin.
+          </p>
+          <div className="mt-5">
+            <ProductFormDialog
+              categories={categories}
+              subCategories={subCategories}
+            />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[1840px] text-left text-sm">
+            <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                {columns.map((column) => (
+                  <th className="whitespace-nowrap px-4 py-3 font-medium" key={column}>
+                    {column}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {products.map((product) => (
+                <tr className="align-top hover:bg-slate-50/70" key={product.id}>
+                  <td className="max-w-[240px] px-4 py-4">
+                    <ProductNameCell name={product.product_name} />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {product.marketplace}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {product.category || "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {product.sub_category || "-"}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 font-medium text-slate-800">
+                    {formatPrice(product.discounted_price)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatPrice(product.normal_price)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatNumber(product.rating_count)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatNumber(product.review_count)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatNumber(product.favorite_count)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatNumber(product.seller_count)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <OpportunityBadge product={product} />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <BooleanBadge active={product.is_suitable} label="Uygun" />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <BooleanBadge
+                      active={product.is_marketplace_seller}
+                      label="Evet"
+                    />
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <BooleanBadge active={product.has_big_seller} label="Var" />
+                  </td>
+                  <td className="max-w-[280px] px-4 py-4 text-slate-600">
+                    <p className="line-clamp-2">{product.notes || "-"}</p>
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4 text-slate-600">
+                    {formatDate(product.created_at)}
+                  </td>
+                  <td className="whitespace-nowrap px-4 py-4">
+                    <div className="flex items-center gap-2">
+                      <ProductFormDialog
+                        categories={categories}
+                        product={product}
+                        subCategories={subCategories}
+                      />
+                      <form action={deleteProduct}>
+                        <input name="id" type="hidden" value={product.id} />
+                        <Button
+                          className="h-9 rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50"
+                          size="sm"
+                          type="submit"
+                          variant="outline"
+                        >
+                          <Trash2 className="h-4 w-4" aria-hidden="true" />
+                          Sil
+                        </Button>
+                      </form>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
