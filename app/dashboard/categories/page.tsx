@@ -1,10 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { CategoryManager } from "@/components/categories/category-manager";
-import type {
-  ProductCategory,
-  ProductSubCategory,
-} from "@/components/product-pool/types";
+import type { ProductCategory } from "@/components/product-pool/types";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function CategoriesPage() {
@@ -17,27 +14,16 @@ export default async function CategoriesPage() {
     redirect("/login");
   }
 
-  const [categoriesResult, subCategoriesResult] = await Promise.all([
-    supabase
-      .from("product_categories")
-      .select("id,user_id,name,created_at,updated_at")
-      .eq("user_id", user.id)
-      .order("name", { ascending: true }),
-    supabase
-      .from("product_sub_categories")
-      .select("id,user_id,category_id,name,created_at,updated_at")
-      .eq("user_id", user.id)
-      .order("name", { ascending: true }),
-  ]);
+  const categoriesResult = await supabase
+    .from("product_categories")
+    .select(
+      "id,user_id,name,parent_id,vat_rate,excise_tax_rate,customs_duty_rate,additional_customs_duty_rate,trt_tax_rate,trendyol_commission_rate,hepsiburada_commission_rate,amazon_commission_rate,gtip_code,notes,created_at,updated_at",
+    )
+    .eq("user_id", user.id)
+    .order("name", { ascending: true });
 
   if (categoriesResult.error) {
     throw new Error(`Kategoriler yuklenemedi: ${categoriesResult.error.message}`);
-  }
-
-  if (subCategoriesResult.error) {
-    throw new Error(
-      `Alt kategoriler yuklenemedi: ${subCategoriesResult.error.message}`,
-    );
   }
 
   return (
@@ -53,7 +39,6 @@ export default async function CategoriesPage() {
       </section>
       <CategoryManager
         categories={(categoriesResult.data ?? []) as ProductCategory[]}
-        subCategories={(subCategoriesResult.data ?? []) as ProductSubCategory[]}
       />
     </div>
   );

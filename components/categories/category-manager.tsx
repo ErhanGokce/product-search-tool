@@ -1,23 +1,31 @@
 "use client";
 
-import { useActionState } from "react";
-import { Folder, Layers3, Trash2 } from "lucide-react";
+import { useMemo, useState, useTransition } from "react";
+import { Pencil, Plus, Trash2 } from "lucide-react";
 
 import {
   createCategory,
-  createSubCategory,
   deleteCategory,
-  deleteSubCategory,
   updateCategory,
-  updateSubCategory,
 } from "@/app/dashboard/categories/actions";
-import type {
-  ActionState,
-  ProductCategory,
-  ProductSubCategory,
-} from "@/components/product-pool/types";
+import type { ActionState, ProductCategory } from "@/components/product-pool/types";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -26,220 +34,458 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { cn } from "@/lib/utils";
 
 type CategoryManagerProps = {
   categories: ProductCategory[];
-  subCategories: ProductSubCategory[];
+};
+
+type RateField = {
+  key:
+    | "vat_rate"
+    | "excise_tax_rate"
+    | "customs_duty_rate"
+    | "additional_customs_duty_rate"
+    | "trt_tax_rate"
+    | "trendyol_commission_rate"
+    | "hepsiburada_commission_rate"
+    | "amazon_commission_rate";
+  label: string;
+  shortLabel: string;
 };
 
 const initialState: ActionState = { ok: false };
+
+const rateFields: RateField[] = [
+  {
+    key: "vat_rate",
+    label: "KDV %",
+    shortLabel: "KDV",
+  },
+  {
+    key: "excise_tax_rate",
+    label: "ÖTV %",
+    shortLabel: "ÖTV",
+  },
+  {
+    key: "customs_duty_rate",
+    label: "Gümrük %",
+    shortLabel: "Gümrük",
+  },
+  {
+    key: "additional_customs_duty_rate",
+    label: "İlave Gümrük %",
+    shortLabel: "İlave Gümrük",
+  },
+  {
+    key: "trt_tax_rate",
+    label: "TRT %",
+    shortLabel: "TRT",
+  },
+  {
+    key: "trendyol_commission_rate",
+    label: "Trendyol %",
+    shortLabel: "Trendyol",
+  },
+  {
+    key: "hepsiburada_commission_rate",
+    label: "Hepsiburada %",
+    shortLabel: "Hepsiburada",
+  },
+  {
+    key: "amazon_commission_rate",
+    label: "Amazon %",
+    shortLabel: "Amazon",
+  },
+];
+
+function getRateInputValue(
+  value: ProductCategory[RateField["key"]] | undefined,
+) {
+  if (value === null || value === undefined) {
+    return "";
+  }
+
+  return String(value);
+}
+
+function formatRateValue(value: ProductCategory[RateField["key"]]) {
+  if (value === null || value === undefined || value === "") {
+    return "-";
+  }
+
+  const numericValue = Number(value);
+
+  if (!Number.isFinite(numericValue)) {
+    return "-";
+  }
+
+  return new Intl.NumberFormat("tr-TR", {
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+}
 
 function InlineError({ state }: { state: ActionState }) {
   if (!state.error) {
     return null;
   }
 
-  return <p className="text-xs text-red-600">{state.error}</p>;
+  return <p className="text-sm text-red-600">{state.error}</p>;
 }
 
-function CategoryCreateForm() {
-  const [state, action] = useActionState(createCategory, initialState);
-
-  return (
-    <form action={action} className="flex flex-col gap-3 sm:flex-row">
-      <Input
-        className="h-11 rounded-2xl"
-        name="name"
-        placeholder="Yeni kategori adi"
-        required
-      />
-      <Button className="rounded-2xl" type="submit">
-        Kategori ekle
-      </Button>
-      <InlineError state={state} />
-    </form>
+export function getEffectiveCategoryRates(
+  category: ProductCategory,
+  parent: ProductCategory | null,
+) {
+  return rateFields.reduce(
+    (values, field) => ({
+      ...values,
+      [field.key]: category[field.key] ?? parent?.[field.key] ?? null,
+    }),
+    {} as Record<RateField["key"], ProductCategory[RateField["key"]]>,
   );
 }
 
-function SubCategoryCreateForm({
-  categories,
+function RateCell({
+  category,
+  field,
+  parent,
 }: {
-  categories: ProductCategory[];
+  category: ProductCategory;
+  field: RateField;
+  parent: ProductCategory | null;
 }) {
-  const [state, action] = useActionState(createSubCategory, initialState);
+  const ownValue = category[field.key];
+  const inheritedValue = parent?.[field.key] ?? null;
+  const isInherited =
+    ownValue === null || ownValue === undefined || ownValue === "";
+  const value = isInherited ? inheritedValue : ownValue;
 
   return (
-    <form action={action} className="grid gap-3 md:grid-cols-[220px_1fr_auto]">
-      <Select name="category_id" required>
-        <SelectTrigger className="h-11 rounded-2xl">
-          <SelectValue placeholder="Kategori sec" />
-        </SelectTrigger>
-        <SelectContent>
-          {categories.map((category) => (
-            <SelectItem key={category.id} value={category.id}>
-              {category.name}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-      <Input
-        className="h-11 rounded-2xl"
-        name="name"
-        placeholder="Yeni alt kategori adi"
-        required
-      />
-      <Button className="rounded-2xl" disabled={categories.length === 0} type="submit">
-        Alt kategori ekle
-      </Button>
-      <InlineError state={state} />
-    </form>
-  );
-}
-
-function CategoryRow({ category }: { category: ProductCategory }) {
-  const [state, action] = useActionState(updateCategory, initialState);
-
-  return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 sm:grid-cols-[1fr_auto]">
-      <form action={action} className="flex gap-2">
-        <input name="id" type="hidden" value={category.id} />
-        <Input
-          className="h-10 rounded-xl bg-white"
-          defaultValue={category.name}
-          name="name"
-          required
-        />
-        <Button className="rounded-xl" type="submit" variant="outline">
-          Kaydet
-        </Button>
-      </form>
-      <form action={deleteCategory}>
-        <input name="id" type="hidden" value={category.id} />
-        <Button
-          className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50 sm:w-auto"
-          type="submit"
-          variant="outline"
-        >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Sil
-        </Button>
-      </form>
-      <InlineError state={state} />
+    <div className="min-w-20">
+      <span className="font-medium text-slate-950">
+        {formatRateValue(value)}
+      </span>
+      {isInherited && value !== null && value !== undefined && value !== "" ? (
+        <span className="ml-2 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+          miras
+        </span>
+      ) : null}
     </div>
   );
 }
 
-function SubCategoryRow({
-  categories,
-  subCategory,
+function CategoryFormDialog({
+  category,
+  rootCategories,
 }: {
-  categories: ProductCategory[];
-  subCategory: ProductSubCategory;
+  category?: ProductCategory;
+  rootCategories: ProductCategory[];
 }) {
-  const [state, action] = useActionState(updateSubCategory, initialState);
+  const [open, setOpen] = useState(false);
+  const [state, setState] = useState<ActionState>(initialState);
+  const [isPending, startTransition] = useTransition();
+  const isEdit = Boolean(category);
+  const action = isEdit ? updateCategory : createCategory;
+  const parentOptions = rootCategories.filter((item) => item.id !== category?.id);
+
+  function handleOpenChange(nextOpen: boolean) {
+    setOpen(nextOpen);
+
+    if (nextOpen) {
+      setState(initialState);
+    }
+  }
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 lg:grid-cols-[220px_1fr_auto]">
-      <form action={action} className="contents">
-        <input name="id" type="hidden" value={subCategory.id} />
-        <Select defaultValue={subCategory.category_id} name="category_id">
-          <SelectTrigger className="h-10 rounded-xl bg-white">
-            <SelectValue placeholder="Kategori" />
-          </SelectTrigger>
-          <SelectContent>
-            {categories.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-        <Input
-          className="h-10 rounded-xl bg-white"
-          defaultValue={subCategory.name}
-          name="name"
-          required
-        />
-        <Button className="rounded-xl" type="submit" variant="outline">
-          Kaydet
-        </Button>
-      </form>
-      <form action={deleteSubCategory} className="lg:col-start-3">
-        <input name="id" type="hidden" value={subCategory.id} />
+    <Dialog open={open} onOpenChange={handleOpenChange}>
+      <DialogTrigger asChild>
         <Button
-          className="w-full rounded-xl border-red-200 text-red-600 hover:bg-red-50"
-          type="submit"
-          variant="outline"
+          className={cn(
+            "rounded-2xl",
+            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+          )}
+          size={isEdit ? "sm" : "default"}
+          type="button"
+          variant={isEdit ? "outline" : "default"}
         >
-          <Trash2 className="h-4 w-4" aria-hidden="true" />
-          Sil
+          {isEdit ? (
+            <Pencil className="h-4 w-4" aria-hidden="true" />
+          ) : (
+            <Plus className="h-4 w-4" aria-hidden="true" />
+          )}
+          {isEdit ? "Düzenle" : "Kategori ekle"}
         </Button>
-      </form>
-      <InlineError state={state} />
-    </div>
-  );
-}
+      </DialogTrigger>
+      <DialogContent
+        className="max-w-5xl"
+        onInteractOutside={(event) => {
+          event.preventDefault();
+        }}
+      >
+        <DialogHeader>
+          <DialogTitle>
+            {isEdit ? "Kategoriyi düzenle" : "Yeni kategori ekle"}
+          </DialogTitle>
+          <DialogDescription>
+            Vergi, GTIP ve pazaryeri komisyon oranlarını kategori veya alt
+            kategori bazında tanımlayın.
+          </DialogDescription>
+        </DialogHeader>
 
-export function CategoryManager({
-  categories,
-  subCategories,
-}: CategoryManagerProps) {
-  return (
-    <div className="grid gap-4 xl:grid-cols-[0.9fr_1.1fr]">
-      <Card className="border-slate-200 bg-white shadow-sm">
-        <CardHeader>
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-            <Folder className="h-5 w-5" aria-hidden="true" />
+        <form
+          className="space-y-5"
+          onSubmit={(event) => {
+            event.preventDefault();
+
+            const formData = new FormData(event.currentTarget);
+
+            startTransition(async () => {
+              const result = await action(initialState, formData);
+
+              setState(result);
+
+              if (result.ok) {
+                setOpen(false);
+              }
+            });
+          }}
+        >
+          {category ? <input name="id" type="hidden" value={category.id} /> : null}
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label
+              className="space-y-2 text-sm font-medium text-slate-700"
+              htmlFor={isEdit ? `category-name-${category?.id}` : "category-name"}
+            >
+              Kategori adı
+              <Input
+                className="h-11 rounded-2xl border-slate-200"
+                defaultValue={category?.name ?? ""}
+                id={isEdit ? `category-name-${category?.id}` : "category-name"}
+                name="name"
+                placeholder="Elektronik"
+                required
+              />
+            </label>
+
+            <label
+              className="space-y-2 text-sm font-medium text-slate-700"
+              htmlFor={isEdit ? `category-parent-${category?.id}` : "category-parent"}
+            >
+              Üst kategori
+              <Select defaultValue={category?.parent_id ?? "none"} name="parent_id">
+                <SelectTrigger
+                  className="h-11 rounded-2xl border-slate-200"
+                  id={isEdit ? `category-parent-${category?.id}` : "category-parent"}
+                >
+                  <SelectValue placeholder="Ana kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">Ana kategori</SelectItem>
+                  {parentOptions.map((item) => (
+                    <SelectItem key={item.id} value={item.id}>
+                      {item.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
           </div>
-          <CardTitle>Kategoriler</CardTitle>
-          <CardDescription>
-            Urun havuzunda kullanilacak ana kategorileri yonetin.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <CategoryCreateForm />
-          <div className="space-y-3">
-            {categories.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-                Henuz kategori yok.
-              </p>
-            ) : (
-              categories.map((category) => (
-                <CategoryRow category={category} key={category.id} />
-              ))
-            )}
-          </div>
-        </CardContent>
-      </Card>
-      <Card className="border-slate-200 bg-white shadow-sm">
-        <CardHeader>
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
-            <Layers3 className="h-5 w-5" aria-hidden="true" />
-          </div>
-          <CardTitle>Alt kategoriler</CardTitle>
-          <CardDescription>
-            Alt kategorileri ana kategorilere baglayin.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <SubCategoryCreateForm categories={categories} />
-          <div className="space-y-3">
-            {subCategories.length === 0 ? (
-              <p className="rounded-2xl border border-dashed border-slate-200 p-4 text-sm text-slate-500">
-                Henuz alt kategori yok.
-              </p>
-            ) : (
-              subCategories.map((subCategory) => (
-                <SubCategoryRow
-                  categories={categories}
-                  key={subCategory.id}
-                  subCategory={subCategory}
+
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {rateFields.map((field) => (
+              <label
+                className="space-y-2 text-sm font-medium text-slate-700"
+                htmlFor={
+                  isEdit
+                    ? `${field.key}-${category?.id}`
+                    : `new-${field.key}`
+                }
+                key={field.key}
+              >
+                {field.label}
+                <Input
+                  className="h-11 rounded-2xl border-slate-200"
+                  defaultValue={getRateInputValue(category?.[field.key])}
+                  id={
+                    isEdit
+                      ? `${field.key}-${category?.id}`
+                      : `new-${field.key}`
+                  }
+                  inputMode="decimal"
+                  name={field.key}
+                  placeholder="0"
+                  step="0.01"
+                  type="number"
                 />
-              ))
-            )}
+              </label>
+            ))}
           </div>
-        </CardContent>
-      </Card>
-    </div>
+
+          <div className="grid gap-4 md:grid-cols-2">
+            <label
+              className="space-y-2 text-sm font-medium text-slate-700"
+              htmlFor={isEdit ? `gtip-${category?.id}` : "gtip"}
+            >
+              GTIP kodu
+              <Input
+                className="h-11 rounded-2xl border-slate-200"
+                defaultValue={category?.gtip_code ?? ""}
+                id={isEdit ? `gtip-${category?.id}` : "gtip"}
+                name="gtip_code"
+                placeholder="8517.13.00.00.11"
+              />
+            </label>
+
+            <label
+              className="space-y-2 text-sm font-medium text-slate-700"
+              htmlFor={isEdit ? `notes-${category?.id}` : "notes"}
+            >
+              Notlar
+              <textarea
+                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-950"
+                defaultValue={category?.notes ?? ""}
+                id={isEdit ? `notes-${category?.id}` : "notes"}
+                name="notes"
+                placeholder="Kategoriye özel vergi veya komisyon notları"
+              />
+            </label>
+          </div>
+
+          <InlineError state={state} />
+
+          <DialogFooter>
+            <Button
+              className="rounded-2xl"
+              disabled={isPending}
+              type="submit"
+            >
+              {isPending ? "Kaydediliyor" : isEdit ? "Kaydet" : "Kategori ekle"}
+            </Button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CategoryRows({
+  categories,
+  rootCategories,
+}: {
+  categories: ProductCategory[];
+  rootCategories: ProductCategory[];
+}) {
+  const categoriesById = useMemo(
+    () => new Map(categories.map((category) => [category.id, category])),
+    [categories],
+  );
+
+  if (categories.length === 0) {
+    return (
+      <TableRow>
+        <TableCell className="py-8 text-center text-slate-500" colSpan={12}>
+          Henüz kategori yok. Vergi ve komisyon oranlarını tanımlamak için
+          kategori ekleyin.
+        </TableCell>
+      </TableRow>
+    );
+  }
+
+  return categories.map((category) => {
+    const parent = category.parent_id
+      ? categoriesById.get(category.parent_id) ?? null
+      : null;
+    const gtip = category.gtip_code ?? parent?.gtip_code ?? "-";
+
+    return (
+      <TableRow key={category.id}>
+        <TableCell className="min-w-44 font-medium text-slate-950">
+          {parent?.name ?? category.name}
+        </TableCell>
+        <TableCell className="min-w-44 text-slate-700">
+          {parent ? category.name : "-"}
+        </TableCell>
+        {rateFields.map((field) => (
+          <TableCell className="min-w-28" key={field.key}>
+            <RateCell category={category} field={field} parent={parent} />
+          </TableCell>
+        ))}
+        <TableCell className="min-w-36 text-slate-700">{gtip}</TableCell>
+        <TableCell className="min-w-40">
+          <div className="flex gap-2">
+            <CategoryFormDialog
+              category={category}
+              rootCategories={rootCategories}
+            />
+            <form action={deleteCategory}>
+              <input name="id" type="hidden" value={category.id} />
+              <Button
+                className="h-9 rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50"
+                size="sm"
+                type="submit"
+                variant="outline"
+              >
+                <Trash2 className="h-4 w-4" aria-hidden="true" />
+                Sil
+              </Button>
+            </form>
+          </div>
+        </TableCell>
+      </TableRow>
+    );
+  });
+}
+
+export function CategoryManager({ categories }: CategoryManagerProps) {
+  const rootCategories = useMemo(
+    () => categories.filter((category) => !category.parent_id),
+    [categories],
+  );
+
+  return (
+    <Card className="border-slate-200 bg-white shadow-sm">
+      <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1.5">
+          <CardTitle>Kategori Vergi ve Komisyon Ayarları</CardTitle>
+          <CardDescription>
+            Ana kategori ve alt kategori bazında vergi, GTIP ve pazaryeri
+            komisyon oranlarını yönetin. Alt kategoride boş bırakılan oranlar
+            ana kategoriden miras alınır.
+          </CardDescription>
+        </div>
+        <CategoryFormDialog rootCategories={rootCategories} />
+      </CardHeader>
+      <CardContent>
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead>Kategori</TableHead>
+              <TableHead>Alt kategori</TableHead>
+              {rateFields.map((field) => (
+                <TableHead key={field.key}>{field.shortLabel} %</TableHead>
+              ))}
+              <TableHead>GTIP</TableHead>
+              <TableHead>İşlemler</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            <CategoryRows
+              categories={categories}
+              rootCategories={rootCategories}
+            />
+          </TableBody>
+        </Table>
+      </CardContent>
+    </Card>
   );
 }

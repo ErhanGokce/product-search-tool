@@ -130,7 +130,7 @@ export function ProductFormDialog({
   const filteredSubCategories = useMemo(
     () =>
       subCategoryOptions.filter(
-        (subCategory) => subCategory.category_id === selectedCategoryId,
+        (subCategory) => subCategory.parent_id === selectedCategoryId,
       ),
     [selectedCategoryId, subCategoryOptions],
   );

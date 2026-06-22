@@ -115,10 +115,10 @@ async function getCategoryNames({
   const subCategoryResult =
     subCategoryId && category
       ? await supabase
-          .from("product_sub_categories")
+          .from("product_categories")
           .select("id,name")
           .eq("id", subCategoryId)
-          .eq("category_id", category.id)
+          .eq("parent_id", category.id)
           .eq("user_id", userId)
           .maybeSingle()
       : { data: null, error: null };

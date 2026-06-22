@@ -29,17 +29,23 @@ export type ProductCategory = {
   id: string;
   user_id: string;
   name: string;
+  parent_id: string | null;
+  vat_rate: number | string | null;
+  excise_tax_rate: number | string | null;
+  customs_duty_rate: number | string | null;
+  additional_customs_duty_rate: number | string | null;
+  trt_tax_rate: number | string | null;
+  trendyol_commission_rate: number | string | null;
+  hepsiburada_commission_rate: number | string | null;
+  amazon_commission_rate: number | string | null;
+  gtip_code: string | null;
+  notes: string | null;
   created_at: string | null;
   updated_at?: string | null;
 };
 
-export type ProductSubCategory = {
-  id: string;
-  user_id: string;
-  category_id: string;
-  name: string;
-  created_at: string | null;
-  updated_at?: string | null;
+export type ProductSubCategory = ProductCategory & {
+  parent_id: string;
 };
 
 export type ActionState = {

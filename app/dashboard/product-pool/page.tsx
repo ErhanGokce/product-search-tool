@@ -27,7 +27,7 @@ export default async function ProductPoolPage() {
     redirect("/login");
   }
 
-  const [productsResult, categoriesResult, subCategoriesResult] = await Promise.all([
+  const [productsResult, categoriesResult] = await Promise.all([
     supabase
       .from("product_pool")
       .select(
@@ -37,12 +37,9 @@ export default async function ProductPoolPage() {
       .order("created_at", { ascending: false }),
     supabase
       .from("product_categories")
-      .select("id,user_id,name,created_at,updated_at")
-      .eq("user_id", user.id)
-      .order("name", { ascending: true }),
-    supabase
-      .from("product_sub_categories")
-      .select("id,user_id,category_id,name,created_at,updated_at")
+      .select(
+        "id,user_id,name,parent_id,vat_rate,excise_tax_rate,customs_duty_rate,additional_customs_duty_rate,trt_tax_rate,trendyol_commission_rate,hepsiburada_commission_rate,amazon_commission_rate,gtip_code,notes,created_at,updated_at",
+      )
       .eq("user_id", user.id)
       .order("name", { ascending: true }),
   ]);
@@ -55,15 +52,12 @@ export default async function ProductPoolPage() {
     throw new Error(`Kategoriler yuklenemedi: ${categoriesResult.error.message}`);
   }
 
-  if (subCategoriesResult.error) {
-    throw new Error(
-      `Alt kategoriler yuklenemedi: ${subCategoriesResult.error.message}`,
-    );
-  }
-
   const products = (productsResult.data ?? []) as ProductPoolItem[];
-  const categories = (categoriesResult.data ?? []) as ProductCategory[];
-  const subCategories = (subCategoriesResult.data ?? []) as ProductSubCategory[];
+  const allCategories = (categoriesResult.data ?? []) as ProductCategory[];
+  const categories = allCategories.filter((category) => !category.parent_id);
+  const subCategories = allCategories.filter(
+    (category): category is ProductSubCategory => Boolean(category.parent_id),
+  );
 
   return (
     <div className="space-y-6">
