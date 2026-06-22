@@ -4,8 +4,12 @@ import { revalidatePath } from "next/cache";
 
 import {
   expensePeriods,
+  taxPeriods,
+  taxTypes,
   type ActionState,
   type ExpensePeriod,
+  type TaxPeriod,
+  type TaxType,
 } from "@/components/settings/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -48,6 +52,26 @@ function getPeriod(formData: FormData): ExpensePeriod {
 
   if (expensePeriods.includes(period as ExpensePeriod)) {
     return period as ExpensePeriod;
+  }
+
+  return "monthly";
+}
+
+function getTaxType(formData: FormData): TaxType {
+  const taxType = getString(formData, "tax_type");
+
+  if (taxTypes.includes(taxType as TaxType)) {
+    return taxType as TaxType;
+  }
+
+  return "other";
+}
+
+function getTaxPeriod(formData: FormData): TaxPeriod {
+  const period = getString(formData, "period");
+
+  if (taxPeriods.includes(period as TaxPeriod)) {
+    return period as TaxPeriod;
   }
 
   return "monthly";
@@ -100,6 +124,24 @@ function getCountryPayload(formData: FormData) {
     has_atr: getBoolean(formData, "has_atr"),
     name,
     notes: getNullableString(formData, "notes"),
+  };
+}
+
+function getTaxSettingPayload(formData: FormData) {
+  const name = getString(formData, "name");
+
+  if (!name) {
+    throw new Error("Vergi adi zorunludur.");
+  }
+
+  return {
+    fixed_amount: getAmount(formData, "fixed_amount"),
+    is_active: getBoolean(formData, "is_active"),
+    name,
+    notes: getNullableString(formData, "notes"),
+    period: getTaxPeriod(formData),
+    rate: getAmount(formData, "rate"),
+    tax_type: getTaxType(formData),
   };
 }
 
@@ -195,6 +237,103 @@ export async function deleteCountry(formData: FormData) {
 
   if (error) {
     throw new Error(`Ulke silinemedi: ${error.message}`);
+  }
+
+  revalidatePath(SETTINGS_PATH);
+}
+
+export async function createTaxSetting(
+  _previousState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  let payload: ReturnType<typeof getTaxSettingPayload>;
+
+  try {
+    payload = getTaxSettingPayload(formData);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Vergi eklenemedi.",
+      ok: false,
+    };
+  }
+
+  const { supabase, user } = await getAuthenticatedClient();
+  const { error } = await supabase.from("tax_settings").insert({
+    ...payload,
+    user_id: user.id,
+  });
+
+  if (error) {
+    return {
+      error: `Vergi eklenemedi: ${error.message}`,
+      ok: false,
+    };
+  }
+
+  revalidatePath(SETTINGS_PATH);
+
+  return { ok: true };
+}
+
+export async function updateTaxSetting(
+  _previousState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const id = getString(formData, "id");
+
+  if (!id) {
+    return {
+      error: "Guncellenecek vergi ayari bulunamadi.",
+      ok: false,
+    };
+  }
+
+  let payload: ReturnType<typeof getTaxSettingPayload>;
+
+  try {
+    payload = getTaxSettingPayload(formData);
+  } catch (error) {
+    return {
+      error: error instanceof Error ? error.message : "Vergi guncellenemedi.",
+      ok: false,
+    };
+  }
+
+  const { supabase, user } = await getAuthenticatedClient();
+  const { error } = await supabase
+    .from("tax_settings")
+    .update(payload)
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    return {
+      error: `Vergi guncellenemedi: ${error.message}`,
+      ok: false,
+    };
+  }
+
+  revalidatePath(SETTINGS_PATH);
+
+  return { ok: true };
+}
+
+export async function deleteTaxSetting(formData: FormData) {
+  const id = getString(formData, "id");
+
+  if (!id) {
+    throw new Error("Silinecek vergi ayari bulunamadi.");
+  }
+
+  const { supabase, user } = await getAuthenticatedClient();
+  const { error } = await supabase
+    .from("tax_settings")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (error) {
+    throw new Error(`Vergi silinemedi: ${error.message}`);
   }
 
   revalidatePath(SETTINGS_PATH);

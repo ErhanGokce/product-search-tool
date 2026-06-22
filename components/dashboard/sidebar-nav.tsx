@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   BarChart3,
   Boxes,
+  Calculator,
   ChartNoAxesCombined,
   LayoutDashboard,
   Settings,
@@ -13,7 +14,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { cn } from "@/lib/utils";
+import {
+  SidebarContent,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+} from "@/components/ui/sidebar";
 
 type NavItem = {
   href: string;
@@ -36,6 +43,11 @@ const navItems: NavItem[] = [
     href: "/dashboard/categories",
     icon: Tags,
     label: "Kategoriler",
+  },
+  {
+    href: "/calculate/profit",
+    icon: Calculator,
+    label: "Kâr Hesapla",
   },
   {
     href: "/dashboard/competitors",
@@ -66,33 +78,39 @@ export function SidebarNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="flex flex-1 flex-col items-center gap-2 px-3 py-4">
-      <div className="mb-5 flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-950 text-white shadow-sm">
-        <BarChart3 className="h-5 w-5" aria-hidden="true" />
-        <span className="sr-only">Erhan Product Search</span>
-      </div>
-      {navItems.map((item) => {
-        const Icon = item.icon;
-        const isActive = isActivePath(pathname, item.href);
+    <>
+      <SidebarHeader className="px-3 py-4">
+        <div className="flex h-11 items-center gap-3 rounded-2xl bg-slate-950 px-3 text-white shadow-sm">
+          <BarChart3 className="h-5 w-5 shrink-0" aria-hidden="true" />
+          <span className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
+            Product Search
+          </span>
+        </div>
+      </SidebarHeader>
+      <SidebarContent className="px-3 pb-4">
+        <SidebarMenu className="gap-2">
+          {navItems.map((item) => {
+            const Icon = item.icon;
+            const isActive = isActivePath(pathname, item.href);
 
-        return (
-          <Link
-            aria-label={item.label}
-            className={cn(
-              "group relative flex h-11 w-11 items-center justify-center rounded-2xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-950",
-              isActive && "bg-slate-950 text-white shadow-sm hover:bg-slate-950 hover:text-white",
-            )}
-            href={item.href}
-            key={item.href}
-            title={item.label}
-          >
-            <Icon className="h-5 w-5" aria-hidden="true" />
-            <span className="pointer-events-none absolute left-14 z-20 hidden whitespace-nowrap rounded-lg bg-slate-950 px-2.5 py-1.5 text-xs font-medium text-white shadow-lg group-hover:block">
-              {item.label}
-            </span>
-          </Link>
-        );
-      })}
-    </nav>
+            return (
+              <SidebarMenuItem key={item.href}>
+                <SidebarMenuButton
+                  asChild
+                  className="h-11 rounded-2xl px-3 text-slate-500 data-[active=true]:bg-slate-950 data-[active=true]:text-white data-[active=true]:shadow-sm hover:bg-slate-100 hover:text-slate-950"
+                  isActive={isActive}
+                  tooltip={item.label}
+                >
+                  <Link href={item.href}>
+                    <Icon className="h-5 w-5" aria-hidden="true" />
+                    <span>{item.label}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            );
+          })}
+        </SidebarMenu>
+      </SidebarContent>
+    </>
   );
 }

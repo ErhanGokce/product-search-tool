@@ -7,6 +7,7 @@ import { TaxSettings } from "@/components/settings/tax-settings";
 import type {
   CompanyExpense,
   CountrySetting,
+  TaxSetting,
 } from "@/components/settings/types";
 import {
   Tabs,
@@ -26,7 +27,8 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const [countriesResult, companyExpensesResult] = await Promise.all([
+  const [countriesResult, companyExpensesResult, taxSettingsResult] =
+    await Promise.all([
     supabase
       .from("countries")
       .select("id,user_id,name,code,has_atr,notes,created_at")
@@ -35,6 +37,13 @@ export default async function SettingsPage() {
     supabase
       .from("company_expenses")
       .select("id,user_id,name,amount,period,is_active,notes,created_at")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+    supabase
+      .from("tax_settings")
+      .select(
+        "id,user_id,name,tax_type,rate,fixed_amount,period,is_active,notes,created_at",
+      )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
   ]);
@@ -46,6 +55,12 @@ export default async function SettingsPage() {
   if (companyExpensesResult.error) {
     throw new Error(
       `Sirket giderleri yuklenemedi: ${companyExpensesResult.error.message}`,
+    );
+  }
+
+  if (taxSettingsResult.error) {
+    throw new Error(
+      `Vergi ayarlari yuklenemedi: ${taxSettingsResult.error.message}`,
     );
   }
 
@@ -82,7 +97,9 @@ export default async function SettingsPage() {
           />
         </TabsContent>
         <TabsContent value="taxes">
-          <TaxSettings />
+          <TaxSettings
+            taxSettings={(taxSettingsResult.data ?? []) as TaxSetting[]}
+          />
         </TabsContent>
         <TabsContent value="marketplaces">
           <MarketplaceSettings />
