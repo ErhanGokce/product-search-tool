@@ -1,4 +1,7 @@
-import { Trash2 } from "lucide-react";
+"use client";
+
+import { useMemo, useState } from "react";
+import { ExternalLink, Search, Trash2 } from "lucide-react";
 
 import { deleteProduct } from "@/app/dashboard/product-pool/actions";
 import {
@@ -13,6 +16,13 @@ import type {
 } from "@/components/product-pool/types";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 type ProductTableProps = {
@@ -115,14 +125,49 @@ function OpportunityBadge({ product }: { product: ProductPoolItem }) {
 
 function ProductNameCell({ name }: { name: string }) {
   return (
-    <div className="group relative max-w-[220px]">
-      <p className="truncate whitespace-nowrap font-medium text-slate-950">
-        {name}
-      </p>
-      <div className="pointer-events-none absolute left-0 top-full z-30 mt-2 hidden max-w-sm rounded-xl bg-slate-950 px-3 py-2 text-xs font-medium leading-5 text-white shadow-lg group-hover:block">
-        {name}
-      </div>
-    </div>
+    <TooltipProvider delayDuration={80}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <p className="max-w-[220px] cursor-default truncate whitespace-nowrap font-medium text-slate-950">
+            {name}
+          </p>
+        </TooltipTrigger>
+        <TooltipContent align="start" side="top">
+          {name}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+}
+
+function ProductLinkButton({ url }: { url: string | null }) {
+  if (!url) {
+    return (
+      <Button
+        className="h-9 rounded-2xl border-slate-200 bg-white px-3 text-slate-400 shadow-sm"
+        disabled
+        size="sm"
+        type="button"
+        variant="outline"
+      >
+        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        Urune git
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      asChild
+      className="h-9 rounded-2xl border-slate-200 bg-white px-3 text-slate-700 shadow-sm hover:bg-slate-50"
+      size="sm"
+      variant="outline"
+    >
+      <a href={url} rel="noreferrer" target="_blank">
+        <ExternalLink className="h-4 w-4" aria-hidden="true" />
+        Urune git
+      </a>
+    </Button>
   );
 }
 
@@ -131,6 +176,19 @@ export function ProductTable({
   products,
   subCategories,
 }: ProductTableProps) {
+  const [searchQuery, setSearchQuery] = useState("");
+  const filteredProducts = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLocaleLowerCase("tr-TR");
+
+    if (!normalizedQuery) {
+      return products;
+    }
+
+    return products.filter((product) =>
+      product.product_name.toLocaleLowerCase("tr-TR").includes(normalizedQuery),
+    );
+  }, [products, searchQuery]);
+
   if (products.length === 0) {
     return (
       <Card className="border-slate-200 bg-white shadow-sm">
@@ -159,6 +217,40 @@ export function ProductTable({
   return (
     <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
       <CardContent className="p-0">
+        <div className="flex flex-col gap-3 border-b border-slate-200 bg-white p-4 sm:flex-row sm:items-center sm:justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-950">Urun tablosu</h3>
+            <p className="text-xs text-slate-500">
+              {filteredProducts.length} / {products.length} urun gosteriliyor
+            </p>
+          </div>
+          <div className="relative w-full sm:max-w-sm">
+            <Search
+              className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+              aria-hidden="true"
+            />
+            <Input
+              className="h-10 rounded-2xl border-slate-200 bg-slate-50 pl-9 shadow-none"
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Urun adi ara"
+              type="search"
+              value={searchQuery}
+            />
+          </div>
+        </div>
+        {filteredProducts.length === 0 ? (
+          <div className="flex min-h-64 flex-col items-center justify-center px-6 py-12 text-center">
+            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 text-slate-500">
+              <Search className="h-5 w-5" aria-hidden="true" />
+            </div>
+            <h3 className="mt-4 text-base font-semibold text-slate-950">
+              Arama sonucu bulunamadi
+            </h3>
+            <p className="mt-2 max-w-sm text-sm leading-6 text-slate-500">
+              Baska bir urun adi deneyin veya arama alanini temizleyin.
+            </p>
+          </div>
+        ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[1840px] text-left text-sm">
             <thead className="border-b border-slate-200 bg-slate-50 text-xs uppercase text-slate-500">
@@ -171,7 +263,7 @@ export function ProductTable({
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <tr className="align-top hover:bg-slate-50/70" key={product.id}>
                   <td className="max-w-[240px] px-4 py-4">
                     <ProductNameCell name={product.product_name} />
@@ -226,6 +318,7 @@ export function ProductTable({
                   </td>
                   <td className="whitespace-nowrap px-4 py-4">
                     <div className="flex items-center gap-2">
+                      <ProductLinkButton url={product.product_url} />
                       <ProductFormDialog
                         categories={categories}
                         product={product}
@@ -250,6 +343,7 @@ export function ProductTable({
             </tbody>
           </table>
         </div>
+        )}
       </CardContent>
     </Card>
   );

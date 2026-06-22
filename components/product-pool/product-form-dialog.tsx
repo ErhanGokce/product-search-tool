@@ -209,6 +209,18 @@ export function ProductFormDialog({
                 required
               />
             </div>
+            <div className="space-y-2 md:col-span-2">
+              <label className="text-sm font-medium text-slate-700" htmlFor="product_url">
+                Urun linki
+              </label>
+              <Input
+                defaultValue={product?.product_url ?? ""}
+                id="product_url"
+                name="product_url"
+                placeholder="https://..."
+                type="url"
+              />
+            </div>
             <div className="space-y-2">
               <label className="text-sm font-medium text-slate-700" htmlFor="marketplace">
                 Pazaryeri

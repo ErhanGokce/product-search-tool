@@ -6,6 +6,7 @@ export type ProductPoolItem = {
   id: string;
   user_id: string | null;
   product_name: string;
+  product_url: string | null;
   marketplace: Marketplace | string;
   category_id: string | null;
   sub_category_id: string | null;

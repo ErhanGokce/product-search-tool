@@ -27,6 +27,20 @@ function getNullableString(formData: FormData, key: string) {
   return value || null;
 }
 
+function getNullableUrl(formData: FormData, key: string) {
+  const value = getString(formData, key);
+
+  if (!value) {
+    return null;
+  }
+
+  if (/^https?:\/\//i.test(value)) {
+    return value;
+  }
+
+  return `https://${value}`;
+}
+
 function getNullableNumber(formData: FormData, key: string) {
   const value = getString(formData, key);
 
@@ -145,6 +159,7 @@ async function getProductPayload(
 
   return {
     product_name: productName,
+    product_url: getNullableUrl(formData, "product_url"),
     marketplace: getMarketplace(formData),
     category: names.categoryName,
     category_id: names.categoryId,

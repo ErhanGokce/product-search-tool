@@ -31,7 +31,7 @@ export default async function ProductPoolPage() {
     supabase
       .from("product_pool")
       .select(
-        "id,user_id,product_name,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
+        "id,user_id,product_name,product_url,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
