@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 
 import { saveMarketplaceSetting } from "@/app/dashboard/settings/actions";
 import {
@@ -79,6 +79,16 @@ function MarketplaceSettingForm({
   )
     ? (setting?.commission_base as CommissionBase)
     : "gross_sale_price";
+  const [isActive, setIsActive] = useState(setting?.is_active ?? true);
+  const [commissionIncludesVat, setCommissionIncludesVat] = useState(
+    setting?.default_commission_includes_vat ?? false,
+  );
+  const [serviceFeeIncludesVat, setServiceFeeIncludesVat] = useState(
+    setting?.service_fee_includes_vat ?? false,
+  );
+  const [shippingIncludesVat, setShippingIncludesVat] = useState(
+    setting?.default_shipping_includes_vat ?? false,
+  );
 
   return (
     <form
@@ -87,11 +97,25 @@ function MarketplaceSettingForm({
     >
       {setting ? <input name="id" type="hidden" value={setting.id} /> : null}
       <input name="marketplace" type="hidden" value={marketplace} />
+      {isActive ? <input name="is_active" type="hidden" value="on" /> : null}
+      {commissionIncludesVat ? (
+        <input name="default_commission_includes_vat" type="hidden" value="on" />
+      ) : null}
+      {serviceFeeIncludesVat ? (
+        <input name="service_fee_includes_vat" type="hidden" value="on" />
+      ) : null}
+      {shippingIncludesVat ? (
+        <input name="default_shipping_includes_vat" type="hidden" value="on" />
+      ) : null}
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
-            <Checkbox defaultChecked={setting?.is_active ?? true} name="is_active" />
+          <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold text-slate-950">
+            <Checkbox
+              checked={isActive}
+              onCheckedChange={(value) => setIsActive(value === true)}
+              type="button"
+            />
             <span>{marketplace}</span>
           </label>
           <p className="text-xs text-slate-500">
@@ -148,10 +172,13 @@ function MarketplaceSettingForm({
             />
           </label>
 
-          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
-              defaultChecked={setting?.default_commission_includes_vat ?? false}
-              name="default_commission_includes_vat"
+              checked={commissionIncludesVat}
+              onCheckedChange={(value) =>
+                setCommissionIncludesVat(value === true)
+              }
+              type="button"
             />
             <span>
               <span className="block font-medium text-slate-950">
@@ -226,17 +253,21 @@ function MarketplaceSettingForm({
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
-              defaultChecked={setting?.service_fee_includes_vat ?? false}
-              name="service_fee_includes_vat"
+              checked={serviceFeeIncludesVat}
+              onCheckedChange={(value) =>
+                setServiceFeeIncludesVat(value === true)
+              }
+              type="button"
             />
             <span>Hizmet bedeli KDV dahil</span>
           </label>
-          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
-              defaultChecked={setting?.default_shipping_includes_vat ?? false}
-              name="default_shipping_includes_vat"
+              checked={shippingIncludesVat}
+              onCheckedChange={(value) => setShippingIncludesVat(value === true)}
+              type="button"
             />
             <span>Kargo payı KDV dahil</span>
           </label>
