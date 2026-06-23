@@ -15,7 +15,7 @@ export function ProfitWarnings({ warnings }: ProfitWarningsProps) {
     <div className="space-y-2">
       {warnings.map((warning) => (
         <div
-          className="flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900"
+          className="flex gap-3 rounded-2xl border border-amber-400/25 bg-amber-400/15 p-4 text-sm leading-6 text-amber-200"
           key={warning}
         >
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />

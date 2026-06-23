@@ -1,7 +1,7 @@
 import { Bell, Search } from "lucide-react";
 
+import { ProfileMenu } from "@/components/dashboard/profile-menu";
 import { SidebarNav } from "@/components/dashboard/sidebar-nav";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,33 +28,33 @@ export function DashboardShell({
           } as React.CSSProperties
         }
       >
-        <div className="flex min-h-svh w-full bg-slate-100 text-slate-950">
+        <div className="flex min-h-svh w-full overflow-x-hidden bg-background text-foreground">
           <Sidebar
-            className="border-r border-slate-200 bg-white/95 shadow-sm backdrop-blur"
+            className="border-r border-sidebar-border bg-sidebar/95 shadow-[18px_0_80px_rgba(0,0,0,0.18)] backdrop-blur"
             collapsible="icon"
           >
             <SidebarNav />
           </Sidebar>
-          <SidebarInset className="bg-slate-100">
-            <header className="sticky top-0 z-20 border-b border-slate-200 bg-slate-100/90 backdrop-blur">
-              <div className="flex min-h-20 items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
-                <SidebarTrigger className="rounded-2xl border border-slate-200 bg-white text-slate-600 shadow-sm" />
+          <SidebarInset className="min-w-0 overflow-x-hidden bg-background">
+            <header className="sticky top-0 z-30 w-full border-b border-border bg-background/86 backdrop-blur-xl">
+              <div className="flex min-h-20 min-w-0 items-center gap-4 px-4 py-4 sm:px-6 lg:px-8">
+                <SidebarTrigger className="rounded-2xl border border-border bg-card text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground" />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium uppercase text-slate-500">
+                  <p className="text-xs font-medium uppercase text-muted-foreground">
                     Dashboard
                   </p>
-                  <h1 className="mt-1 truncate text-xl font-semibold tracking-normal text-slate-950">
+                  <h1 className="mt-1 truncate text-xl font-semibold tracking-normal text-foreground">
                     Ürün Araştırması
                   </h1>
                 </div>
-                <div className="hidden w-full max-w-sm items-center sm:flex">
+                <div className="hidden min-w-0 w-full max-w-sm items-center sm:flex">
                   <div className="relative w-full">
                     <Search
-                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                      className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                       aria-hidden="true"
                     />
                     <Input
-                      className="h-11 rounded-2xl border-slate-200 bg-white pl-9 shadow-none"
+                      className="h-11 rounded-2xl border-border bg-card pl-9 shadow-none"
                       placeholder="Urun, kategori veya rakip ara"
                       type="search"
                     />
@@ -62,39 +62,31 @@ export function DashboardShell({
                 </div>
                 <Button
                   aria-label="Bildirimler"
-                  className="hidden h-11 w-11 rounded-2xl border-slate-200 bg-white p-0 text-slate-600 shadow-sm hover:bg-slate-50 sm:inline-flex"
+                  className="hidden h-11 w-11 rounded-2xl border-border bg-card p-0 text-muted-foreground shadow-sm hover:bg-muted hover:text-foreground sm:inline-flex"
                   type="button"
                   variant="outline"
                 >
                   <Bell className="h-4 w-4" aria-hidden="true" />
                 </Button>
-                <div className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white p-1.5 pr-3 shadow-sm">
-                  <Avatar>
-                    <AvatarFallback>EG</AvatarFallback>
-                  </Avatar>
-                  <div className="hidden text-left leading-tight lg:block">
-                    <p className="text-sm font-medium text-slate-950">
-                      Erhan Gokce
-                    </p>
-                    <p className="text-xs text-slate-500">Admin</p>
-                  </div>
-                </div>
+                <ProfileMenu />
               </div>
               <div className="px-4 pb-4 sm:hidden">
                 <div className="relative">
                   <Search
-                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400"
+                    className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground"
                     aria-hidden="true"
                   />
                   <Input
-                    className="h-11 rounded-2xl border-slate-200 bg-white pl-9 shadow-none"
+                    className="h-11 rounded-2xl border-border bg-card pl-9 shadow-none"
                     placeholder="Ara"
                     type="search"
                   />
                 </div>
               </div>
             </header>
-            <main className="px-4 py-6 sm:px-6 lg:px-8">{children}</main>
+            <main className="min-w-0 overflow-x-hidden px-4 py-6 sm:px-6 lg:px-8">
+              {children}
+            </main>
           </SidebarInset>
         </div>
       </SidebarProvider>

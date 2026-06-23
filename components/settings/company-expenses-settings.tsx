@@ -283,6 +283,24 @@ function ExpenseFormDialog({ expense }: { expense?: CompanyExpense }) {
               </Select>
             </label>
 
+            <label
+              className="space-y-2 text-sm font-medium text-slate-700"
+              htmlFor={isEdit ? `expense-vat-${expense?.id}` : "expense-vat"}
+            >
+              KDV oranı %
+              <Input
+                className="h-11 rounded-2xl border-slate-200"
+                defaultValue={getAmountInputValue(expense?.vat_rate ?? 20)}
+                id={isEdit ? `expense-vat-${expense?.id}` : "expense-vat"}
+                inputMode="decimal"
+                min="0"
+                name="vat_rate"
+                placeholder="20"
+                step="0.01"
+                type="number"
+              />
+            </label>
+
             <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700 md:col-span-2">
               <Checkbox
                 className="mt-0.5"
@@ -293,6 +311,38 @@ function ExpenseFormDialog({ expense }: { expense?: CompanyExpense }) {
                 <span className="block font-medium text-slate-950">Aktif mi?</span>
                 <span className="mt-1 block text-slate-500">
                   Pasif giderler toplam aylık ve yıllık hesaplara dahil edilmez.
+                </span>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+              <Checkbox
+                className="mt-0.5"
+                defaultChecked={expense?.amount_includes_vat ?? false}
+                name="amount_includes_vat"
+              />
+              <span>
+                <span className="block font-medium text-slate-950">
+                  Tutar KDV dahil
+                </span>
+                <span className="mt-1 block text-slate-500">
+                  Açıkken gider net tutar ve KDV olarak ayrıştırılır.
+                </span>
+              </span>
+            </label>
+
+            <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+              <Checkbox
+                className="mt-0.5"
+                defaultChecked={expense?.vat_deductible ?? false}
+                name="vat_deductible"
+              />
+              <span>
+                <span className="block font-medium text-slate-950">
+                  KDV indirilebilir
+                </span>
+                <span className="mt-1 block text-slate-500">
+                  Açıkken KDV kâr gideri değil, mahsup tablosu kalemi olur.
                 </span>
               </span>
             </label>
@@ -346,9 +396,10 @@ function ExpenseStatusBadge({ isActive }: { isActive: boolean | null }) {
 
 function ExpenseRow({ expense }: { expense: CompanyExpense }) {
   const monthlyAmount = getMonthlyExpenseAmount(expense);
+  const vatLabel = expense.vat_deductible ? "İndirilebilir" : "Gider";
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[1.4fr_0.75fr_0.75fr_0.75fr_0.7fr_auto] lg:items-center">
+    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[1.4fr_0.65fr_0.65fr_0.7fr_0.65fr_0.7fr_auto] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
           <p className="truncate text-sm font-semibold text-slate-950">
@@ -385,6 +436,13 @@ function ExpenseRow({ expense }: { expense: CompanyExpense }) {
         </p>
         <p className="mt-1 text-sm font-medium text-slate-950">
           {formatCurrency(monthlyAmount)}
+        </p>
+      </div>
+
+      <div>
+        <p className="text-xs font-medium uppercase text-slate-400">KDV</p>
+        <p className="mt-1 text-sm text-slate-700">
+          %{getNumberValue(expense.vat_rate ?? 0)} · {vatLabel}
         </p>
       </div>
 

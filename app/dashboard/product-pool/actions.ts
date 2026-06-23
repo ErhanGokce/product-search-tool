@@ -170,6 +170,12 @@ async function getProductPayload(
     favorite_count: getInteger(formData, "favorite_count"),
     normal_price: getNullableNumber(formData, "normal_price"),
     notes: getNullableString(formData, "notes"),
+    purchase_price: getNullableNumber(formData, "purchase_price"),
+    purchase_price_includes_vat: getBoolean(
+      formData,
+      "purchase_price_includes_vat",
+    ),
+    purchase_vat_rate: getNullableNumber(formData, "purchase_vat_rate") ?? 20,
     rating_count: getInteger(formData, "rating_count"),
     review_count: getInteger(formData, "review_count"),
     seller_count: getInteger(formData, "seller_count"),

@@ -6,6 +6,7 @@ import type {
   CompanyExpense,
   CountrySetting,
   MarketplaceSetting,
+  TaxSetting,
 } from "@/components/settings/types";
 import { createClient } from "@/lib/supabase/server";
 
@@ -30,7 +31,7 @@ export default async function ProfitCalculationPage() {
     supabase
       .from("product_pool")
       .select(
-        "id,user_id,product_name,product_url,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
+        "id,user_id,product_name,product_url,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,purchase_price,purchase_price_includes_vat,purchase_vat_rate,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
@@ -43,13 +44,13 @@ export default async function ProfitCalculationPage() {
       .order("name", { ascending: true }),
     supabase
       .from("company_expenses")
-      .select("id,user_id,name,amount,period,is_active,notes,created_at")
+      .select("id,user_id,name,amount,amount_includes_vat,vat_rate,vat_deductible,period,is_active,notes,created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
       .from("marketplace_settings")
       .select(
-        "id,user_id,marketplace,default_commission_rate,default_shipping_cost,service_fee,payment_term_days,is_active,created_at",
+        "id,user_id,marketplace,default_commission_rate,commission_base,default_commission_includes_vat,default_commission_vat_rate,default_shipping_cost,default_shipping_includes_vat,default_shipping_vat_rate,service_fee,service_fee_includes_vat,service_fee_vat_rate,payment_term_days,is_active,created_at",
       )
       .eq("user_id", user.id)
       .order("marketplace", { ascending: true }),
@@ -98,13 +99,13 @@ export default async function ProfitCalculationPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <section>
-        <p className="text-sm font-medium text-slate-500">Kâr analizi</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
+        <p className="app-page-eyebrow">Kâr analizi</p>
+        <h2 className="app-page-title">
           Kâr Hesapla
         </h2>
-        <p className="mt-2 max-w-3xl text-sm leading-6 text-slate-500">
+        <p className="app-page-description max-w-3xl">
           Ürün havuzundaki ürünler için satış fiyatı, vergi, komisyon ve
           operasyon giderlerini birlikte değerlendirerek senaryo bazlı kâr
           marjı hesaplayın.
@@ -118,6 +119,7 @@ export default async function ProfitCalculationPage() {
           (marketplaceSettingsResult.data ?? []) as MarketplaceSetting[]
         }
         products={(productsResult.data ?? []) as ProductPoolItem[]}
+        taxSettings={(taxSettingsResult.data ?? []) as TaxSetting[]}
       />
     </div>
   );

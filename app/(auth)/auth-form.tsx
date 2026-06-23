@@ -26,9 +26,13 @@ export function AuthForm({
   title,
 }: AuthFormProps) {
   return (
-    <div className="flex min-h-svh items-center justify-center bg-slate-50 px-4 py-12">
-      <Card className="w-full max-w-md border-slate-200 shadow-[0_18px_70px_rgba(15,23,42,0.08)]">
+    <div className="relative flex min-h-svh items-center justify-center overflow-hidden bg-background px-4 py-12 text-foreground">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_18%,rgba(217,255,143,0.16),transparent_28%),radial-gradient(circle_at_80%_12%,rgba(52,245,181,0.12),transparent_24%)]" />
+      <Card className="relative w-full max-w-md border-border bg-card/95 shadow-[0_28px_90px_rgba(0,0,0,0.4)] backdrop-blur">
         <CardHeader className="space-y-2">
+          <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary text-lg font-bold text-primary-foreground shadow-[0_16px_44px_rgba(217,255,143,0.18)]">
+            PS
+          </div>
           <CardTitle>{title}</CardTitle>
           <CardDescription>{description}</CardDescription>
         </CardHeader>
@@ -36,7 +40,7 @@ export function AuthForm({
           <form action={action} className="space-y-4">
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
                 htmlFor="email"
               >
                 Email
@@ -52,7 +56,7 @@ export function AuthForm({
             </div>
             <div className="space-y-2">
               <label
-                className="text-sm font-medium text-slate-700"
+                className="text-sm font-medium text-foreground"
                 htmlFor="password"
               >
                 Sifre
@@ -68,11 +72,11 @@ export function AuthForm({
               />
             </div>
             {error ? (
-              <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
+              <p className="rounded-xl border border-red-500/25 bg-red-500/10 px-3 py-2 text-sm text-red-300">
                 {error}
               </p>
             ) : null}
-            <Button className="w-full" type="submit">
+            <Button className="h-11 w-full rounded-2xl" type="submit">
               {submitLabel}
             </Button>
           </form>

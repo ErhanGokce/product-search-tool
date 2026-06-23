@@ -19,26 +19,53 @@ type ProfitBreakdownTableProps = {
   scenarios: ScenarioBreakdown[];
 };
 
-const rows: Array<{
-  key: keyof ProfitCalculationResult;
+type Row = {
+  getValue?: (result: ProfitCalculationResult) => string;
+  key?: keyof ProfitCalculationResult;
   label: string;
   type?: "currency" | "percent";
-}> = [
+};
+
+const rows: Row[] = [
   { key: "grossSalePrice", label: "Brüt satış fiyatı" },
-  { key: "saleWithoutVat", label: "KDV hariç satış" },
-  { key: "productCost", label: "Ürün maliyeti" },
+  { key: "saleNet", label: "KDV hariç satış" },
+  { key: "outputVat", label: "Satış KDV" },
+  { key: "purchaseGross", label: "Alış toplamı" },
+  { key: "purchaseNet", label: "Alış net maliyet" },
+  { key: "inputVatFromPurchase", label: "Alış/ithalat öncesi indirilecek KDV" },
+  { key: "customsBase", label: "Gümrük matrahı" },
   { key: "customsDuty", label: "Gümrük vergisi" },
   { key: "additionalCustomsDuty", label: "İlave gümrük" },
   { key: "exciseTax", label: "ÖTV" },
   { key: "trtTax", label: "TRT vergisi" },
-  { key: "marketplaceCommission", label: "Pazaryeri komisyonu" },
-  { key: "shippingCost", label: "Kargo gideri" },
-  { key: "operatingCostPerProduct", label: "Ürün başı şirket gider payı" },
+  { key: "importVat", label: "İthalat KDV" },
+  { key: "landedCost", label: "Landed cost" },
+  { key: "marketplaceCommission", label: "Komisyon net gider" },
+  { key: "marketplaceCommissionVat", label: "Komisyon KDV" },
+  { key: "marketplaceCommissionTotal", label: "Komisyon toplam kesinti" },
+  { key: "marketplaceNetFees", label: "Pazaryeri net giderleri" },
+  { key: "shippingCost", label: "Kargo net gideri" },
+  { key: "packagingCost", label: "Paketleme net gideri" },
+  { key: "operationNetCosts", label: "Operasyon net giderleri" },
+  { key: "deductibleVatFromExpenses", label: "Giderlerden indirilecek KDV" },
+  { key: "inputVatTotal", label: "Toplam indirilecek KDV" },
+  { key: "vatPayable", label: "Ödenecek KDV" },
+  { key: "carriedVat", label: "Devreden KDV" },
+  { key: "profitBeforeIncomeTax", label: "Gelir vergisi öncesi kâr" },
   { key: "estimatedIncomeTax", label: "Tahmini gelir vergisi etkisi" },
   { key: "netProfit", label: "Net kâr" },
   { key: "netMargin", label: "Net marj %", type: "percent" },
   { key: "roi", label: "ROI %", type: "percent" },
   { key: "minimumSalePrice", label: "Minimum satış fiyatı" },
+  {
+    getValue: (result) =>
+      result.taxCashFlow.length > 0
+        ? result.taxCashFlow
+            .map((item) => `${item.label}: ${formatCurrency(item.amount)}`)
+            .join(" · ")
+        : "-",
+    label: "Tahmini nakit akışı",
+  },
 ];
 
 function formatCurrency(value: number) {
@@ -63,7 +90,10 @@ function formatPercent(value: number) {
   }).format(value)}%`;
 }
 
-function formatValue(value: ProfitCalculationResult[keyof ProfitCalculationResult], type?: string) {
+function formatValue(
+  value: ProfitCalculationResult[keyof ProfitCalculationResult],
+  type?: Row["type"],
+) {
   if (typeof value !== "number") {
     return String(value);
   }
@@ -84,13 +114,17 @@ export function ProfitBreakdownTable({ scenarios }: ProfitBreakdownTableProps) {
       </TableHeader>
       <TableBody>
         {rows.map((row) => (
-          <TableRow key={row.key}>
-            <TableCell className="min-w-56 font-medium text-slate-950">
+          <TableRow key={row.label}>
+            <TableCell className="min-w-64 font-medium text-foreground">
               {row.label}
             </TableCell>
             {scenarios.map((scenario) => (
-              <TableCell className="min-w-44" key={scenario.title}>
-                {formatValue(scenario.result[row.key], row.type)}
+              <TableCell className="min-w-56" key={scenario.title}>
+                {row.getValue
+                  ? row.getValue(scenario.result)
+                  : row.key
+                    ? formatValue(scenario.result[row.key], row.type)
+                    : "-"}
               </TableCell>
             ))}
           </TableRow>

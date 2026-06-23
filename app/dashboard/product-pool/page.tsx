@@ -31,7 +31,7 @@ export default async function ProductPoolPage() {
     supabase
       .from("product_pool")
       .select(
-        "id,user_id,product_name,product_url,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
+        "id,user_id,product_name,product_url,marketplace,category_id,sub_category_id,category,sub_category,discounted_price,normal_price,purchase_price,purchase_price_includes_vat,purchase_vat_rate,rating_count,review_count,favorite_count,seller_count,is_suitable,is_marketplace_seller,has_big_seller,notes,created_at",
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
@@ -60,39 +60,39 @@ export default async function ProductPoolPage() {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <section className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <p className="text-sm font-medium text-slate-500">
+          <p className="app-page-eyebrow">
             Urun arastirma
           </p>
-          <h2 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
+          <h2 className="app-page-title">
             Urun Havuzu
           </h2>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+          <p className="app-page-description max-w-2xl">
             Pazaryeri adaylarini fiyat, talep ve rekabet sinyalleriyle birlikte
             takip edin.
           </p>
         </div>
         <ProductFormDialog categories={categories} subCategories={subCategories} />
       </section>
-      <Tabs defaultValue="table">
+      <Tabs className="min-w-0" defaultValue="table">
         <TabsList className="w-full justify-start overflow-x-auto sm:w-auto">
           <TabsTrigger value="table">Urun tablosu</TabsTrigger>
           <TabsTrigger value="stats">KPI kartlari</TabsTrigger>
           <TabsTrigger value="charts">Grafikler</TabsTrigger>
         </TabsList>
-        <TabsContent value="table">
+        <TabsContent className="min-w-0" value="table">
           <ProductTable
             categories={categories}
             products={products}
             subCategories={subCategories}
           />
         </TabsContent>
-        <TabsContent value="stats">
+        <TabsContent className="min-w-0" value="stats">
           <ProductStats products={products} />
         </TabsContent>
-        <TabsContent value="charts">
+        <TabsContent className="min-w-0" value="charts">
           <ProductCharts products={products} />
         </TabsContent>
       </Tabs>

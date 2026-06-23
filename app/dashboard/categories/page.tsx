@@ -27,13 +27,13 @@ export default async function CategoriesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <section>
-        <p className="text-sm font-medium text-slate-500">Urun siniflandirma</p>
-        <h2 className="mt-1 text-2xl font-semibold tracking-normal text-slate-950">
+        <p className="app-page-eyebrow">Urun siniflandirma</p>
+        <h2 className="app-page-title">
           Kategoriler
         </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-500">
+        <p className="app-page-description max-w-2xl">
           Urun havuzunda kullanacaginiz kategori ve alt kategorileri yonetin.
         </p>
       </section>

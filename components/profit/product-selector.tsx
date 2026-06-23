@@ -22,7 +22,7 @@ export function ProductSelector({
 }: ProductSelectorProps) {
   return (
     <Select onValueChange={onProductChange} value={selectedProductId}>
-      <SelectTrigger className="h-11 rounded-2xl border-slate-200 bg-white">
+      <SelectTrigger className="h-11 rounded-2xl border-border bg-background dark:bg-surface-elevated">
         <SelectValue placeholder="Ürün seç" />
       </SelectTrigger>
       <SelectContent>

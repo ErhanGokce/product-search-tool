@@ -50,16 +50,6 @@ const navItems: NavItem[] = [
     label: "Kâr Hesapla",
   },
   {
-    href: "/dashboard/competitors",
-    icon: Store,
-    label: "Rakipler",
-  },
-  {
-    href: "/dashboard/analytics",
-    icon: ChartNoAxesCombined,
-    label: "Analizler",
-  },
-  {
     href: "/dashboard/settings",
     icon: Settings,
     label: "Ayarlar",
@@ -80,7 +70,7 @@ export function SidebarNav() {
   return (
     <>
       <SidebarHeader className="px-3 py-4">
-        <div className="flex h-11 items-center gap-3 rounded-2xl bg-slate-950 px-3 text-white shadow-sm">
+        <div className="flex h-11 items-center gap-3 rounded-2xl bg-primary px-3 text-primary-foreground shadow-[0_16px_42px_rgba(217,255,143,0.16)]">
           <BarChart3 className="h-5 w-5 shrink-0" aria-hidden="true" />
           <span className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
             Product Search
@@ -97,7 +87,7 @@ export function SidebarNav() {
               <SidebarMenuItem key={item.href}>
                 <SidebarMenuButton
                   asChild
-                  className="h-11 rounded-2xl px-3 text-slate-500 data-[active=true]:bg-slate-950 data-[active=true]:text-white data-[active=true]:shadow-sm hover:bg-slate-100 hover:text-slate-950"
+                  className="h-11 rounded-2xl px-3 text-muted-foreground data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:shadow-[0_14px_34px_rgba(217,255,143,0.14)] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
                   isActive={isActive}
                   tooltip={item.label}
                 >

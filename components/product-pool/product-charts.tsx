@@ -21,7 +21,15 @@ type ProductChartsProps = {
   products: ProductPoolItem[];
 };
 
-const chartColors = ["#0f172a", "#2563eb", "#10b981", "#f59e0b", "#ef4444"];
+const chartColors = ["#d9ff8f", "#34f5b5", "#9ca39a", "#5d6659", "#f7f8f4"];
+const gridColor = "rgba(255,255,255,0.08)";
+const tickColor = "#9ca39a";
+const tooltipStyle = {
+  background: "#171914",
+  border: "1px solid rgba(255,255,255,0.08)",
+  borderRadius: "14px",
+  color: "#f7f8f4",
+};
 
 function countBy<T extends string>(items: T[]) {
   return items.reduce<Record<string, number>>((acc, item) => {
@@ -39,7 +47,7 @@ function toChartData(values: Record<string, number>) {
 
 function EmptyChart() {
   return (
-    <div className="flex h-44 items-center justify-center rounded-2xl border border-dashed border-slate-200 bg-slate-50 text-sm text-slate-500">
+    <div className="flex h-44 items-center justify-center rounded-2xl border border-dashed border-border bg-surface-elevated text-sm text-muted-foreground">
       Grafik icin henuz veri yok.
     </div>
   );
@@ -55,7 +63,7 @@ function ChartShell({
   title: string;
 }) {
   return (
-    <Card className="border-slate-200 bg-white shadow-sm">
+    <Card>
       <CardHeader className="gap-1 p-4 pb-2">
         <CardTitle className="text-sm">{title}</CardTitle>
         <CardDescription className="text-xs leading-5">{description}</CardDescription>
@@ -113,11 +121,11 @@ export function ProductCharts({ products }: ProductChartsProps) {
           <div className="h-44">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={marketplaceData} margin={{ bottom: 0, left: -20, right: 4, top: 4 }}>
-                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} />
-                <YAxis allowDecimals={false} fontSize={11} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#0f172a" radius={[8, 8, 0, 0]} />
+                <CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" fontSize={11} stroke={tickColor} tickLine={false} />
+                <YAxis allowDecimals={false} fontSize={11} stroke={tickColor} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Bar dataKey="value" fill="#d9ff8f" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -133,11 +141,11 @@ export function ProductCharts({ products }: ProductChartsProps) {
           <div className="h-44">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={categoryData.slice(0, 6)} margin={{ bottom: 0, left: -20, right: 4, top: 4 }}>
-                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" vertical={false} />
-                <XAxis dataKey="name" fontSize={11} tickLine={false} />
-                <YAxis allowDecimals={false} fontSize={11} tickLine={false} />
-                <Tooltip />
-                <Bar dataKey="value" fill="#2563eb" radius={[8, 8, 0, 0]} />
+                <CartesianGrid stroke={gridColor} strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" fontSize={11} stroke={tickColor} tickLine={false} />
+                <YAxis allowDecimals={false} fontSize={11} stroke={tickColor} tickLine={false} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Bar dataKey="value" fill="#34f5b5" radius={[8, 8, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -168,7 +176,7 @@ export function ProductCharts({ products }: ProductChartsProps) {
                     />
                   ))}
                 </Pie>
-                <Tooltip />
+                <Tooltip contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -184,17 +192,18 @@ export function ProductCharts({ products }: ProductChartsProps) {
           <div className="h-44">
             <ResponsiveContainer height="100%" width="100%">
               <BarChart data={opportunityData.slice(0, 6)} layout="vertical" margin={{ bottom: 0, left: 0, right: 4, top: 4 }}>
-                <CartesianGrid stroke="#e2e8f0" strokeDasharray="3 3" horizontal={false} />
-                <XAxis allowDecimals={false} fontSize={11} tickLine={false} type="number" />
+                <CartesianGrid stroke={gridColor} strokeDasharray="3 3" horizontal={false} />
+                <XAxis allowDecimals={false} fontSize={11} stroke={tickColor} tickLine={false} type="number" />
                 <YAxis
                   dataKey="name"
                   fontSize={11}
+                  stroke={tickColor}
                   tickLine={false}
                   type="category"
                   width={116}
                 />
-                <Tooltip />
-                <Bar dataKey="score" fill="#10b981" radius={[0, 8, 8, 0]} />
+                <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(255,255,255,0.04)" }} />
+                <Bar dataKey="score" fill="#34f5b5" radius={[0, 8, 8, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>

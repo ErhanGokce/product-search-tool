@@ -58,17 +58,17 @@ export function ProductStats({ products }: ProductStatsProps) {
         const Icon = stat.icon;
 
         return (
-          <Card className="border-slate-200 bg-white shadow-sm" key={stat.label}>
+          <Card key={stat.label}>
             <CardHeader className="flex-row items-center justify-between gap-4 space-y-0 pb-3">
-              <CardTitle className="text-sm font-medium text-slate-500">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 {stat.label}
               </CardTitle>
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <Icon className="h-5 w-5" aria-hidden="true" />
               </div>
             </CardHeader>
             <CardContent>
-              <p className="text-3xl font-semibold tracking-normal text-slate-950">
+              <p className="text-3xl font-semibold tracking-normal text-foreground">
                 {stat.value}
               </p>
             </CardContent>

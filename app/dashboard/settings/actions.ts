@@ -3,14 +3,20 @@
 import { revalidatePath } from "next/cache";
 
 import {
+  commissionBases,
   expensePeriods,
   taxPeriods,
   taxTypes,
   type ActionState,
+  type CommissionBase,
   type ExpensePeriod,
   type TaxPeriod,
   type TaxType,
 } from "@/components/settings/types";
+import {
+  marketplaces,
+  type Marketplace,
+} from "@/components/product-pool/types";
 import { createClient } from "@/lib/supabase/server";
 
 const SETTINGS_PATH = "/dashboard/settings";
@@ -47,6 +53,18 @@ function getBoolean(formData: FormData, key: string) {
   return formData.get(key) === "on";
 }
 
+function getInteger(formData: FormData, key: string) {
+  const value = getString(formData, key);
+
+  if (!value) {
+    return 0;
+  }
+
+  const parsed = Number.parseInt(value, 10);
+
+  return Number.isFinite(parsed) && parsed >= 0 ? parsed : 0;
+}
+
 function getPeriod(formData: FormData): ExpensePeriod {
   const period = getString(formData, "period");
 
@@ -77,6 +95,26 @@ function getTaxPeriod(formData: FormData): TaxPeriod {
   return "monthly";
 }
 
+function getMarketplace(formData: FormData): Marketplace {
+  const marketplace = getString(formData, "marketplace");
+
+  if (marketplaces.includes(marketplace as Marketplace)) {
+    return marketplace as Marketplace;
+  }
+
+  return "Trendyol";
+}
+
+function getCommissionBase(formData: FormData): CommissionBase {
+  const commissionBase = getString(formData, "commission_base");
+
+  if (commissionBases.includes(commissionBase as CommissionBase)) {
+    return commissionBase as CommissionBase;
+  }
+
+  return "gross_sale_price";
+}
+
 async function getAuthenticatedClient() {
   const supabase = await createClient();
   const {
@@ -103,10 +141,13 @@ function getCompanyExpensePayload(formData: FormData) {
 
   return {
     amount: getAmount(formData, "amount"),
+    amount_includes_vat: getBoolean(formData, "amount_includes_vat"),
     is_active: getBoolean(formData, "is_active"),
     name,
     notes: getNullableString(formData, "notes"),
     period: getPeriod(formData),
+    vat_deductible: getBoolean(formData, "vat_deductible"),
+    vat_rate: getAmount(formData, "vat_rate"),
   };
 }
 
@@ -142,6 +183,33 @@ function getTaxSettingPayload(formData: FormData) {
     period: getTaxPeriod(formData),
     rate: getAmount(formData, "rate"),
     tax_type: getTaxType(formData),
+  };
+}
+
+function getMarketplaceSettingPayload(formData: FormData) {
+  return {
+    commission_base: getCommissionBase(formData),
+    default_commission_includes_vat: getBoolean(
+      formData,
+      "default_commission_includes_vat",
+    ),
+    default_commission_rate: getAmount(formData, "default_commission_rate"),
+    default_commission_vat_rate: getAmount(
+      formData,
+      "default_commission_vat_rate",
+    ),
+    default_shipping_cost: getAmount(formData, "default_shipping_cost"),
+    default_shipping_includes_vat: getBoolean(
+      formData,
+      "default_shipping_includes_vat",
+    ),
+    default_shipping_vat_rate: getAmount(formData, "default_shipping_vat_rate"),
+    is_active: getBoolean(formData, "is_active"),
+    marketplace: getMarketplace(formData),
+    payment_term_days: getInteger(formData, "payment_term_days") || 28,
+    service_fee: getAmount(formData, "service_fee"),
+    service_fee_includes_vat: getBoolean(formData, "service_fee_includes_vat"),
+    service_fee_vat_rate: getAmount(formData, "service_fee_vat_rate"),
   };
 }
 
@@ -434,4 +502,37 @@ export async function deleteCompanyExpense(formData: FormData) {
   }
 
   revalidatePath(SETTINGS_PATH);
+}
+
+export async function saveMarketplaceSetting(
+  _previousState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const id = getString(formData, "id");
+  const payload = getMarketplaceSettingPayload(formData);
+  const { supabase, user } = await getAuthenticatedClient();
+  const query = id
+    ? supabase
+        .from("marketplace_settings")
+        .update(payload)
+        .eq("id", id)
+        .eq("user_id", user.id)
+    : supabase.from("marketplace_settings").insert({
+        ...payload,
+        user_id: user.id,
+      });
+
+  const { error } = await query;
+
+  if (error) {
+    return {
+      error: `Pazaryeri ayari kaydedilemedi: ${error.message}`,
+      ok: false,
+    };
+  }
+
+  revalidatePath(SETTINGS_PATH);
+  revalidatePath("/calculate/profit");
+
+  return { ok: true };
 }

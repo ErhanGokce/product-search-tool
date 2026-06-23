@@ -22,7 +22,7 @@ function AvatarFallback({
   return (
     <div
       className={cn(
-        "flex h-full w-full items-center justify-center rounded-full bg-slate-200 text-sm font-medium text-slate-700",
+        "flex h-full w-full items-center justify-center rounded-full bg-muted text-sm font-medium text-foreground",
         className,
       )}
       data-slot="avatar-fallback"

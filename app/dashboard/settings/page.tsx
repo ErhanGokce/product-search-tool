@@ -7,6 +7,7 @@ import { TaxSettings } from "@/components/settings/tax-settings";
 import type {
   CompanyExpense,
   CountrySetting,
+  MarketplaceSetting,
   TaxSetting,
 } from "@/components/settings/types";
 import {
@@ -27,7 +28,12 @@ export default async function SettingsPage() {
     redirect("/login");
   }
 
-  const [countriesResult, companyExpensesResult, taxSettingsResult] =
+  const [
+    countriesResult,
+    companyExpensesResult,
+    taxSettingsResult,
+    marketplaceSettingsResult,
+  ] =
     await Promise.all([
     supabase
       .from("countries")
@@ -36,7 +42,7 @@ export default async function SettingsPage() {
       .order("name", { ascending: true }),
     supabase
       .from("company_expenses")
-      .select("id,user_id,name,amount,period,is_active,notes,created_at")
+      .select("id,user_id,name,amount,amount_includes_vat,vat_rate,vat_deductible,period,is_active,notes,created_at")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
     supabase
@@ -46,6 +52,13 @@ export default async function SettingsPage() {
       )
       .eq("user_id", user.id)
       .order("created_at", { ascending: false }),
+    supabase
+      .from("marketplace_settings")
+      .select(
+        "id,user_id,marketplace,default_commission_rate,commission_base,default_commission_includes_vat,default_commission_vat_rate,default_shipping_cost,default_shipping_includes_vat,default_shipping_vat_rate,service_fee,service_fee_includes_vat,service_fee_vat_rate,payment_term_days,is_active,created_at",
+      )
+      .eq("user_id", user.id)
+      .order("marketplace", { ascending: true }),
   ]);
 
   if (countriesResult.error) {
@@ -64,13 +77,19 @@ export default async function SettingsPage() {
     );
   }
 
+  if (marketplaceSettingsResult.error) {
+    throw new Error(
+      `Pazaryeri ayarlari yuklenemedi: ${marketplaceSettingsResult.error.message}`,
+    );
+  }
+
   return (
-    <div className="space-y-6">
+    <div className="app-page">
       <div className="max-w-3xl space-y-2">
-        <h2 className="text-2xl font-semibold tracking-normal text-slate-950">
+        <h2 className="text-2xl font-semibold tracking-normal text-foreground">
           Ayarlar
         </h2>
-        <p className="text-sm leading-6 text-slate-500">
+        <p className="text-sm leading-6 text-muted-foreground">
           Kâr hesaplama, ithalat maliyeti, pazaryeri komisyonları ve şirket
           giderleri için temel ayarları yönetin.
         </p>
@@ -102,7 +121,11 @@ export default async function SettingsPage() {
           />
         </TabsContent>
         <TabsContent value="marketplaces">
-          <MarketplaceSettings />
+          <MarketplaceSettings
+            settings={
+              (marketplaceSettingsResult.data ?? []) as MarketplaceSetting[]
+            }
+          />
         </TabsContent>
       </Tabs>
     </div>

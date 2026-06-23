@@ -1,3 +1,19 @@
+"use client";
+
+import { useActionState } from "react";
+
+import { saveMarketplaceSetting } from "@/app/dashboard/settings/actions";
+import {
+  marketplaces,
+  type Marketplace,
+} from "@/components/product-pool/types";
+import type {
+  ActionState,
+  CommissionBase,
+  MarketplaceSetting,
+} from "@/components/settings/types";
+import { commissionBases } from "@/components/settings/types";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
@@ -7,74 +23,271 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-const marketplaces = ["Trendyol", "Hepsiburada", "Amazon"];
+type MarketplaceSettingsProps = {
+  settings: MarketplaceSetting[];
+};
 
-export function MarketplaceSettings() {
+const initialActionState: ActionState = { ok: false };
+
+const commissionBaseLabels: Record<CommissionBase, string> = {
+  gross_sale_price: "KDV dahil satış fiyatı",
+  net_sale_price: "KDV hariç satış fiyatı",
+};
+
+function getInputValue(value: number | string | null | undefined, fallback = "") {
+  if (value === null || value === undefined || value === "") {
+    return fallback;
+  }
+
+  return String(value);
+}
+
+function getSetting(
+  settings: MarketplaceSetting[],
+  marketplace: Marketplace,
+) {
+  return (
+    settings.find(
+      (setting) => setting.marketplace === marketplace && setting.is_active,
+    ) ??
+    settings.find((setting) => setting.marketplace === marketplace) ??
+    null
+  );
+}
+
+function MarketplaceSettingForm({
+  marketplace,
+  setting,
+}: {
+  marketplace: Marketplace;
+  setting: MarketplaceSetting | null;
+}) {
+  const [state, formAction, pending] = useActionState(
+    saveMarketplaceSetting,
+    initialActionState,
+  );
+  const selectedCommissionBase = commissionBases.includes(
+    setting?.commission_base as CommissionBase,
+  )
+    ? (setting?.commission_base as CommissionBase)
+    : "gross_sale_price";
+
+  return (
+    <form
+      action={formAction}
+      className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+    >
+      {setting ? <input name="id" type="hidden" value={setting.id} /> : null}
+      <input name="marketplace" type="hidden" value={marketplace} />
+
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <label className="flex items-center gap-3 text-sm font-semibold text-slate-950">
+            <Checkbox defaultChecked={setting?.is_active ?? true} name="is_active" />
+            <span>{marketplace}</span>
+          </label>
+          <p className="text-xs text-slate-500">
+            {setting ? "Kayıtlı varsayımlar" : "Varsayılan kayıt oluşturulacak"}
+          </p>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-4">
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Komisyon oranı
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(setting?.default_commission_rate)}
+              inputMode="decimal"
+              max="100"
+              min="0"
+              name="default_commission_rate"
+              placeholder="15"
+              step="0.01"
+              type="number"
+            />
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Komisyon matrahı
+            <Select defaultValue={selectedCommissionBase} name="commission_base">
+              <SelectTrigger className="h-11 rounded-2xl border-slate-200 bg-white">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {commissionBases.map((commissionBase) => (
+                  <SelectItem key={commissionBase} value={commissionBase}>
+                    {commissionBaseLabels[commissionBase]}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Komisyon KDV %
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(
+                setting?.default_commission_vat_rate,
+                "20",
+              )}
+              inputMode="decimal"
+              min="0"
+              name="default_commission_vat_rate"
+              placeholder="20"
+              step="0.01"
+              type="number"
+            />
+          </label>
+
+          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+            <Checkbox
+              defaultChecked={setting?.default_commission_includes_vat ?? false}
+              name="default_commission_includes_vat"
+            />
+            <span>
+              <span className="block font-medium text-slate-950">
+                Komisyon KDV dahil
+              </span>
+              <span className="mt-1 block text-xs leading-5 text-slate-500">
+                Kapalıysa komisyon KDV’si ayrıca hesaplanır.
+              </span>
+            </span>
+          </label>
+        </div>
+
+        <div className="grid gap-4 lg:grid-cols-4">
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Hizmet bedeli
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(setting?.service_fee)}
+              inputMode="decimal"
+              min="0"
+              name="service_fee"
+              placeholder="0.00"
+              step="0.01"
+              type="number"
+            />
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Hizmet KDV %
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(setting?.service_fee_vat_rate, "20")}
+              inputMode="decimal"
+              min="0"
+              name="service_fee_vat_rate"
+              placeholder="20"
+              step="0.01"
+              type="number"
+            />
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Kargo payı
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(setting?.default_shipping_cost)}
+              inputMode="decimal"
+              min="0"
+              name="default_shipping_cost"
+              placeholder="0.00"
+              step="0.01"
+              type="number"
+            />
+          </label>
+
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Kargo KDV %
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(
+                setting?.default_shipping_vat_rate,
+                "20",
+              )}
+              inputMode="decimal"
+              min="0"
+              name="default_shipping_vat_rate"
+              placeholder="20"
+              step="0.01"
+              type="number"
+            />
+          </label>
+        </div>
+
+        <div className="grid gap-3 md:grid-cols-3">
+          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+            <Checkbox
+              defaultChecked={setting?.service_fee_includes_vat ?? false}
+              name="service_fee_includes_vat"
+            />
+            <span>Hizmet bedeli KDV dahil</span>
+          </label>
+          <label className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+            <Checkbox
+              defaultChecked={setting?.default_shipping_includes_vat ?? false}
+              name="default_shipping_includes_vat"
+            />
+            <span>Kargo payı KDV dahil</span>
+          </label>
+          <label className="space-y-2 text-sm font-medium text-slate-700">
+            Ödeme vadesi
+            <Input
+              className="h-11 rounded-2xl border-slate-200 bg-white"
+              defaultValue={getInputValue(setting?.payment_term_days, "28")}
+              inputMode="numeric"
+              min="0"
+              name="payment_term_days"
+              type="number"
+            />
+          </label>
+        </div>
+
+        {state.error ? (
+          <p className="text-sm text-red-600">{state.error}</p>
+        ) : null}
+        {state.ok ? (
+          <p className="text-sm text-emerald-700">Pazaryeri ayarı kaydedildi.</p>
+        ) : null}
+
+        <div>
+          <Button className="rounded-2xl" disabled={pending} type="submit">
+            {pending ? "Kaydediliyor" : "Kaydet"}
+          </Button>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+export function MarketplaceSettings({ settings }: MarketplaceSettingsProps) {
   return (
     <Card className="border-slate-200 bg-white shadow-sm">
       <CardHeader>
         <CardTitle>Pazaryeri Ayarları</CardTitle>
         <CardDescription>
-          Pazaryeri bazlı komisyon, hizmet ve operasyon maliyeti varsayımları.
+          Kâr hesabında kullanılan komisyon matrahı, komisyon KDV’si, kargo ve
+          hizmet bedeli varsayımlarını yönetin.
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <div className="grid gap-4">
+        <div className="space-y-4">
           {marketplaces.map((marketplace) => (
-            <div
-              className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+            <MarketplaceSettingForm
               key={marketplace}
-            >
-              <div className="flex flex-col gap-4 lg:flex-row lg:items-end">
-                <label className="flex items-center gap-3 text-sm font-medium text-slate-700 lg:w-52">
-                  <Checkbox defaultChecked id={`${marketplace}-active`} />
-                  <span>{marketplace}</span>
-                </label>
-
-                <label className="min-w-0 flex-1 space-y-2 text-sm font-medium text-slate-700">
-                  Komisyon oranı
-                  <div className="relative">
-                    <Input
-                      className="h-11 rounded-2xl border-slate-200 bg-white pr-10"
-                      inputMode="decimal"
-                      max="100"
-                      min="0"
-                      placeholder="15"
-                      step="0.01"
-                      type="number"
-                    />
-                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-sm text-slate-400">
-                      %
-                    </span>
-                  </div>
-                </label>
-
-                <label className="min-w-0 flex-1 space-y-2 text-sm font-medium text-slate-700">
-                  Hizmet bedeli
-                  <Input
-                    className="h-11 rounded-2xl border-slate-200 bg-white"
-                    inputMode="decimal"
-                    min="0"
-                    placeholder="0.00"
-                    step="0.01"
-                    type="number"
-                  />
-                </label>
-
-                <label className="min-w-0 flex-1 space-y-2 text-sm font-medium text-slate-700">
-                  Kargo payı
-                  <Input
-                    className="h-11 rounded-2xl border-slate-200 bg-white"
-                    inputMode="decimal"
-                    min="0"
-                    placeholder="0.00"
-                    step="0.01"
-                    type="number"
-                  />
-                </label>
-              </div>
-            </div>
+              marketplace={marketplace}
+              setting={getSetting(settings, marketplace)}
+            />
           ))}
         </div>
       </CardContent>

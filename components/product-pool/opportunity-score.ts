@@ -68,27 +68,27 @@ export function calculateOpportunityScore(product: ProductPoolItem) {
 export function getOpportunityScoreMeta(score: number) {
   if (score >= 80) {
     return {
-      className: "bg-emerald-50 text-emerald-700",
+      className: "bg-accent/15 text-accent",
       label: "Cok iyi",
     };
   }
 
   if (score >= 60) {
     return {
-      className: "bg-blue-50 text-blue-700",
+      className: "bg-primary/18 text-primary",
       label: "Iyi",
     };
   }
 
   if (score >= 40) {
     return {
-      className: "bg-amber-50 text-amber-700",
+      className: "bg-amber-400/15 text-amber-300",
       label: "Orta",
     };
   }
 
   return {
-    className: "bg-red-50 text-red-700",
+    className: "bg-red-500/12 text-red-300",
     label: "Zayif",
   };
 }

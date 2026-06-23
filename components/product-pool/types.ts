@@ -14,6 +14,9 @@ export type ProductPoolItem = {
   sub_category: string | null;
   discounted_price: number | string | null;
   normal_price: number | string | null;
+  purchase_price?: number | string | null;
+  purchase_price_includes_vat?: boolean | null;
+  purchase_vat_rate?: number | string | null;
   rating_count: number | null;
   review_count: number | null;
   favorite_count: number | null;

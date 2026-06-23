@@ -36,14 +36,14 @@ function formatPercent(value: number) {
 
 function getStatusClassName(status: ProfitStatus) {
   if (status === "Kârlı") {
-    return "bg-emerald-50 text-emerald-700";
+    return "bg-accent/15 text-accent";
   }
 
   if (status === "Riskli") {
-    return "bg-amber-50 text-amber-700";
+    return "bg-amber-400/15 text-amber-300";
   }
 
-  return "bg-red-50 text-red-700";
+  return "bg-red-500/15 text-red-300";
 }
 
 export function ProfitScenarioCard({
@@ -51,7 +51,7 @@ export function ProfitScenarioCard({
   title,
 }: ProfitScenarioCardProps) {
   return (
-    <Card className="border-slate-200 bg-white shadow-sm">
+    <Card>
       <CardHeader className="space-y-3">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -72,26 +72,50 @@ export function ProfitScenarioCard({
       </CardHeader>
       <CardContent className="grid gap-3 text-sm">
         <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">Brüt satış</span>
-          <span className="font-medium text-slate-950">
-            {formatCurrency(result.grossSalePrice)}
+          <span className="text-muted-foreground">KDV hariç satış</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(result.saleNet)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">Net marj</span>
-          <span className="font-medium text-slate-950">
+          <span className="text-muted-foreground">Vergi öncesi kâr</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(result.profitBeforeIncomeTax)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground">Ödenecek KDV</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(result.vatPayable)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground">Devreden KDV</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(result.carriedVat)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground">Gelir vergisi</span>
+          <span className="font-medium text-foreground">
+            {formatCurrency(result.estimatedIncomeTax)}
+          </span>
+        </div>
+        <div className="flex items-center justify-between gap-3">
+          <span className="text-muted-foreground">Net marj</span>
+          <span className="font-medium text-foreground">
             {formatPercent(result.netMargin)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">ROI</span>
-          <span className="font-medium text-slate-950">
+          <span className="text-muted-foreground">ROI</span>
+          <span className="font-medium text-foreground">
             {formatPercent(result.roi)}
           </span>
         </div>
         <div className="flex items-center justify-between gap-3">
-          <span className="text-slate-500">Min. satış</span>
-          <span className="font-medium text-slate-950">
+          <span className="text-muted-foreground">Min. satış</span>
+          <span className="font-medium text-foreground">
             {formatCurrency(result.minimumSalePrice)}
           </span>
         </div>

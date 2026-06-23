@@ -1,4 +1,4 @@
-const incomeTaxBrackets = [
+export const incomeTaxBrackets2026 = [
   {
     baseTax: 0,
     lowerLimit: 0,
@@ -37,17 +37,44 @@ export function calculateProgressiveIncomeTax(annualProfit: number): number {
   }
 
   const bracket =
-    incomeTaxBrackets.find((item) => annualProfit <= item.upperLimit) ??
-    incomeTaxBrackets[incomeTaxBrackets.length - 1];
+    incomeTaxBrackets2026.find((item) => annualProfit <= item.upperLimit) ??
+    incomeTaxBrackets2026[incomeTaxBrackets2026.length - 1];
 
   return bracket.baseTax + (annualProfit - bracket.lowerLimit) * bracket.rate;
 }
 
+export function calculateIncrementalIncomeTax({
+  annualProfit,
+  existingAnnualProfit = 0,
+}: {
+  annualProfit: number;
+  existingAnnualProfit?: number;
+}): number {
+  const safeExistingAnnualProfit = Math.max(0, existingAnnualProfit);
+  const safeAnnualProfit = Math.max(0, annualProfit);
+
+  if (
+    safeAnnualProfit <= 0 ||
+    !Number.isFinite(safeAnnualProfit) ||
+    !Number.isFinite(safeExistingAnnualProfit)
+  ) {
+    return 0;
+  }
+
+  return (
+    calculateProgressiveIncomeTax(
+      safeExistingAnnualProfit + safeAnnualProfit,
+    ) - calculateProgressiveIncomeTax(safeExistingAnnualProfit)
+  );
+}
+
 export function calculateIncomeTaxPerProduct({
   estimatedMonthlySales,
+  existingAnnualProfit = 0,
   profitBeforeIncomeTaxPerProduct,
 }: {
   estimatedMonthlySales: number;
+  existingAnnualProfit?: number;
   profitBeforeIncomeTaxPerProduct: number;
 }): number {
   if (
@@ -61,7 +88,10 @@ export function calculateIncomeTaxPerProduct({
 
   const annualSalesCount = estimatedMonthlySales * 12;
   const annualProfit = profitBeforeIncomeTaxPerProduct * annualSalesCount;
-  const annualIncomeTax = calculateProgressiveIncomeTax(annualProfit);
+  const annualIncomeTax = calculateIncrementalIncomeTax({
+    annualProfit,
+    existingAnnualProfit,
+  });
 
   return annualIncomeTax / annualSalesCount;
 }

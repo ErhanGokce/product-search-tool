@@ -163,7 +163,7 @@ export function ProductFormDialog({
         <Button
           className={cn(
             "rounded-2xl",
-            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+            isEdit && "h-9 border-border bg-card px-3 text-foreground shadow-sm",
           )}
           size={isEdit ? "sm" : "default"}
           type="button"
@@ -198,7 +198,7 @@ export function ProductFormDialog({
           {product ? <input name="id" type="hidden" value={product.id} /> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="product_name">
+              <label className="text-sm font-medium text-foreground" htmlFor="product_name">
                 Urun adi
               </label>
               <Input
@@ -210,7 +210,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="product_url">
+              <label className="text-sm font-medium text-foreground" htmlFor="product_url">
                 Urun linki
               </label>
               <Input
@@ -222,7 +222,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="marketplace">
+              <label className="text-sm font-medium text-foreground" htmlFor="marketplace">
                 Pazaryeri
               </label>
               <Select defaultValue={marketplace} name="marketplace">
@@ -239,7 +239,7 @@ export function ProductFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="category_id">
+              <label className="text-sm font-medium text-foreground" htmlFor="category_id">
                 Kategori
               </label>
               <Select
@@ -265,7 +265,7 @@ export function ProductFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="sub_category_id">
+              <label className="text-sm font-medium text-foreground" htmlFor="sub_category_id">
                 Alt kategori
               </label>
               <Select
@@ -290,7 +290,7 @@ export function ProductFormDialog({
               </Select>
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="discounted_price">
+              <label className="text-sm font-medium text-foreground" htmlFor="discounted_price">
                 Indirimli fiyat
               </label>
               <Input
@@ -303,7 +303,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="normal_price">
+              <label className="text-sm font-medium text-foreground" htmlFor="normal_price">
                 Normal fiyat
               </label>
               <Input
@@ -316,7 +316,48 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="rating_count">
+              <label className="text-sm font-medium text-foreground" htmlFor="purchase_price">
+                Maliyet TL
+              </label>
+              <Input
+                defaultValue={getPriceValue(product?.purchase_price)}
+                id="purchase_price"
+                min="0"
+                name="purchase_price"
+                placeholder="0.00"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground" htmlFor="purchase_vat_rate">
+                Alış KDV %
+              </label>
+              <Input
+                defaultValue={getPriceValue(product?.purchase_vat_rate ?? 20)}
+                id="purchase_vat_rate"
+                min="0"
+                name="purchase_vat_rate"
+                placeholder="20"
+                step="0.01"
+                type="number"
+              />
+            </div>
+            <label className="flex items-start gap-3 rounded-2xl border border-border bg-surface-elevated p-4 text-sm text-foreground md:col-span-2">
+              <Checkbox
+                defaultChecked={product?.purchase_price_includes_vat ?? true}
+                name="purchase_price_includes_vat"
+              />
+              <span>
+                <span className="block font-medium">Maliyet KDV dahil</span>
+                <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                  Kapalıysa maliyet net alış tutarı kabul edilir ve KDV ayrıca
+                  hesaplanır.
+                </span>
+              </span>
+            </label>
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-foreground" htmlFor="rating_count">
                 Degerlendirme sayisi
               </label>
               <Input
@@ -328,7 +369,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="review_count">
+              <label className="text-sm font-medium text-foreground" htmlFor="review_count">
                 Yorum sayisi
               </label>
               <Input
@@ -340,7 +381,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="favorite_count">
+              <label className="text-sm font-medium text-foreground" htmlFor="favorite_count">
                 Favori sayisi
               </label>
               <Input
@@ -352,7 +393,7 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="seller_count">
+              <label className="text-sm font-medium text-foreground" htmlFor="seller_count">
                 Satici sayisi
               </label>
               <Input
@@ -364,11 +405,11 @@ export function ProductFormDialog({
               />
             </div>
             <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-medium text-slate-700" htmlFor="notes">
+              <label className="text-sm font-medium text-foreground" htmlFor="notes">
                 Notlar
               </label>
               <textarea
-                className="min-h-24 w-full rounded-2xl border border-input bg-white px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                className="min-h-24 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:ring-2 focus:ring-ring/35 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-surface-elevated"
                 defaultValue={product?.notes ?? ""}
                 id="notes"
                 name="notes"
@@ -379,7 +420,7 @@ export function ProductFormDialog({
           <div className="grid gap-3 md:grid-cols-3">
             {booleanFields.map((field) => (
               <label
-                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4"
+                className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-surface-elevated p-4"
                 key={field.name}
               >
                 <Checkbox
@@ -387,10 +428,10 @@ export function ProductFormDialog({
                   name={field.name}
                 />
                 <span className="space-y-1">
-                  <span className="block text-sm font-medium text-slate-800">
+                  <span className="block text-sm font-medium text-foreground">
                     {field.label}
                   </span>
-                  <span className="block text-xs leading-5 text-slate-500">
+                  <span className="block text-xs leading-5 text-muted-foreground">
                     {field.description}
                   </span>
                 </span>
@@ -398,7 +439,7 @@ export function ProductFormDialog({
             ))}
           </div>
           {state.error ? (
-            <p className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <p className="rounded-2xl border border-red-500/25 bg-red-500/10 px-4 py-3 text-sm text-red-300">
               {state.error}
             </p>
           ) : null}
@@ -408,14 +449,14 @@ export function ProductFormDialog({
             </Button>
           </DialogFooter>
         </form>
-        <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 md:grid-cols-2">
+        <div className="grid gap-3 rounded-2xl border border-border bg-surface-elevated p-4 md:grid-cols-2">
           <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-800">
+            <p className="text-sm font-medium text-foreground">
               Hizli kategori ekle
             </p>
             <div className="flex gap-2">
               <Input
-                className="bg-white"
+                className="bg-background dark:bg-card"
                 onChange={(event) => setQuickCategoryName(event.target.value)}
                 placeholder="Kategori adi"
                 value={quickCategoryName}
@@ -454,12 +495,12 @@ export function ProductFormDialog({
             </div>
           </div>
           <div className="space-y-2">
-            <p className="text-sm font-medium text-slate-800">
+            <p className="text-sm font-medium text-foreground">
               Hizli alt kategori ekle
             </p>
             <div className="flex gap-2">
               <Input
-                className="bg-white"
+                className="bg-background dark:bg-card"
                 disabled={!selectedCategoryId}
                 onChange={(event) => setQuickSubCategoryName(event.target.value)}
                 placeholder="Alt kategori adi"
@@ -503,7 +544,7 @@ export function ProductFormDialog({
             </div>
           </div>
           {quickError ? (
-            <p className="text-sm text-red-600 md:col-span-2">{quickError}</p>
+            <p className="text-sm text-red-300 md:col-span-2">{quickError}</p>
           ) : null}
         </div>
       </DialogContent>
