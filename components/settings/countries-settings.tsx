@@ -277,19 +277,19 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
             <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
               <FileCheck2 className="h-5 w-5" aria-hidden="true" />
             </div>
-            <CardTitle>ATR ve ithalat ülkeleri</CardTitle>
+            <CardTitle>İthalat ülkeleri ve ATR</CardTitle>
             <CardDescription>
-              ATR, Avrupa Birliği ile Türkiye arasındaki gümrük birliği
-              kapsamındaki sanayi ürünlerinde gümrük vergisi avantajı
-              sağlayabilir. Ürün ve GTIP bazında ayrıca kontrol edilmelidir.
+              Türkiye yerli alış için ayrıca eklenmez. Bu liste yalnızca
+              ithalat yapılan ülkeler ve ATR kontrolü için kullanılır.
             </CardDescription>
           </div>
           <CountryFormDialog />
         </CardHeader>
         <CardContent>
           <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
-            ATR var diye tüm vergiler sıfırlanmaz. KDV, ÖTV, TRT bandrolü veya
-            ilave mali yükümlülükler ayrıca hesaplanabilir.
+            Kâr hesabında ithalat kapalıysa kaynak yerli alış / Türkiye kabul
+            edilir. ATR var diye tüm vergiler sıfırlanmaz; KDV, ÖTV, TRT
+            bandrolü veya ilave mali yükümlülükler ayrıca hesaplanabilir.
           </div>
         </CardContent>
       </Card>
@@ -307,7 +307,10 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
         <CardContent>
           {countries.length === 0 ? (
             <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
-              <p>Henüz ülke kaydı yok. İthalat yaptığınız ülkeyi ekleyin.</p>
+              <p>
+                Henüz ithalat ülkesi yok. Türkiye’yi değil, ithalat yaptığınız
+                ülkeleri ekleyin.
+              </p>
               <CountryFormDialog />
             </div>
           ) : (

@@ -748,7 +748,12 @@ export function ProfitCalculator({
                   checked={isImported}
                   onCheckedChange={(value) => setIsImported(value === true)}
                 />
-                <span>İthalat senaryosu</span>
+                <span>
+                  <span className="block font-medium">İthalat senaryosu</span>
+                  <span className="mt-1 block text-xs leading-5 text-muted-foreground">
+                    Kapalıyken kaynak yerli alış / Türkiye kabul edilir.
+                  </span>
+                </span>
               </label>
               {isImported ? (
                 <div className="space-y-4 rounded-2xl border border-border bg-surface-elevated p-4">
