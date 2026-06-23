@@ -14,7 +14,6 @@ import type {
 } from "@/components/settings/types";
 import { commissionBases } from "@/components/settings/types";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Card,
   CardContent,
@@ -41,6 +40,9 @@ const commissionBaseLabels: Record<CommissionBase, string> = {
   gross_sale_price: "KDV dahil satış fiyatı",
   net_sale_price: "KDV hariç satış fiyatı",
 };
+
+const checkboxClassName =
+  "mt-0.5 h-4 w-4 shrink-0 rounded border border-slate-300 accent-lime-300";
 
 function getInputValue(value: number | string | null | undefined, fallback = "") {
   if (value === null || value === undefined || value === "") {
@@ -97,24 +99,16 @@ function MarketplaceSettingForm({
     >
       {setting ? <input name="id" type="hidden" value={setting.id} /> : null}
       <input name="marketplace" type="hidden" value={marketplace} />
-      {isActive ? <input name="is_active" type="hidden" value="on" /> : null}
-      {commissionIncludesVat ? (
-        <input name="default_commission_includes_vat" type="hidden" value="on" />
-      ) : null}
-      {serviceFeeIncludesVat ? (
-        <input name="service_fee_includes_vat" type="hidden" value="on" />
-      ) : null}
-      {shippingIncludesVat ? (
-        <input name="default_shipping_includes_vat" type="hidden" value="on" />
-      ) : null}
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex items-center gap-3 text-sm font-semibold text-slate-950">
-            <Checkbox
+            <input
               checked={isActive}
-              onCheckedChange={(value) => setIsActive(value === true)}
-              type="button"
+              className={checkboxClassName}
+              name="is_active"
+              onChange={(event) => setIsActive(event.target.checked)}
+              type="checkbox"
             />
             <span>{marketplace}</span>
           </div>
@@ -173,12 +167,14 @@ function MarketplaceSettingForm({
           </label>
 
           <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <Checkbox
+            <input
               checked={commissionIncludesVat}
-              onCheckedChange={(value) =>
-                setCommissionIncludesVat(value === true)
+              className={checkboxClassName}
+              name="default_commission_includes_vat"
+              onChange={(event) =>
+                setCommissionIncludesVat(event.target.checked)
               }
-              type="button"
+              type="checkbox"
             />
             <span>
               <span className="block font-medium text-slate-950">
@@ -254,20 +250,24 @@ function MarketplaceSettingForm({
 
         <div className="grid gap-3 md:grid-cols-3">
           <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <Checkbox
+            <input
               checked={serviceFeeIncludesVat}
-              onCheckedChange={(value) =>
-                setServiceFeeIncludesVat(value === true)
+              className={checkboxClassName}
+              name="service_fee_includes_vat"
+              onChange={(event) =>
+                setServiceFeeIncludesVat(event.target.checked)
               }
-              type="button"
+              type="checkbox"
             />
             <span>Hizmet bedeli KDV dahil</span>
           </div>
           <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
-            <Checkbox
+            <input
               checked={shippingIncludesVat}
-              onCheckedChange={(value) => setShippingIncludesVat(value === true)}
-              type="button"
+              className={checkboxClassName}
+              name="default_shipping_includes_vat"
+              onChange={(event) => setShippingIncludesVat(event.target.checked)}
+              type="checkbox"
             />
             <span>Kargo payı KDV dahil</span>
           </div>
