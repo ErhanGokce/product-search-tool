@@ -110,14 +110,14 @@ function MarketplaceSettingForm({
 
       <div className="flex flex-col gap-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <label className="flex cursor-pointer items-center gap-3 text-sm font-semibold text-slate-950">
+          <div className="flex items-center gap-3 text-sm font-semibold text-slate-950">
             <Checkbox
               checked={isActive}
               onCheckedChange={(value) => setIsActive(value === true)}
               type="button"
             />
             <span>{marketplace}</span>
-          </label>
+          </div>
           <p className="text-xs text-slate-500">
             {setting ? "Kayıtlı varsayımlar" : "Varsayılan kayıt oluşturulacak"}
           </p>
@@ -172,7 +172,7 @@ function MarketplaceSettingForm({
             />
           </label>
 
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
               checked={commissionIncludesVat}
               onCheckedChange={(value) =>
@@ -188,7 +188,7 @@ function MarketplaceSettingForm({
                 Kapalıysa komisyon KDV’si ayrıca hesaplanır.
               </span>
             </span>
-          </label>
+          </div>
         </div>
 
         <div className="grid gap-4 lg:grid-cols-4">
@@ -253,7 +253,7 @@ function MarketplaceSettingForm({
         </div>
 
         <div className="grid gap-3 md:grid-cols-3">
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
               checked={serviceFeeIncludesVat}
               onCheckedChange={(value) =>
@@ -262,15 +262,15 @@ function MarketplaceSettingForm({
               type="button"
             />
             <span>Hizmet bedeli KDV dahil</span>
-          </label>
-          <label className="flex cursor-pointer items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
+          </div>
+          <div className="flex items-start gap-3 rounded-2xl border border-slate-200 bg-white p-3 text-sm text-slate-700">
             <Checkbox
               checked={shippingIncludesVat}
               onCheckedChange={(value) => setShippingIncludesVat(value === true)}
               type="button"
             />
             <span>Kargo payı KDV dahil</span>
-          </label>
+          </div>
           <label className="space-y-2 text-sm font-medium text-slate-700">
             Ödeme vadesi
             <Input
