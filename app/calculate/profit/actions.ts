@@ -75,11 +75,6 @@ function sanitizeCalculatorState(value: unknown): ProfitCalculatorState | null {
     customsBaseInput: getString(value, "customsBaseInput"),
     customsBrokerInput: getString(value, "customsBrokerInput"),
     estimatedPriceInput: getString(value, "estimatedPriceInput"),
-    existingAnnualProfitInput: getString(
-      value,
-      "existingAnnualProfitInput",
-      "0",
-    ),
     freightInput: getString(value, "freightInput"),
     importExpenseIncludesVat: getBoolean(
       value,

@@ -88,13 +88,15 @@ export function getAutoEstimatedPrice(product: ProductPoolItem | null) {
 
 export function createProfitCalculatorState(
   product: ProductPoolItem | null,
+  marketplaceSettings: MarketplaceSetting[] = [],
 ): ProfitCalculatorState {
+  const marketplace = product ? getProductMarketplace(product) : "Trendyol";
+
   return {
     applyAtrAdvantage: false,
     customsBaseInput: "",
     customsBrokerInput: "",
     estimatedPriceInput: getProfitInputValue(getAutoEstimatedPrice(product)),
-    existingAnnualProfitInput: "0",
     freightInput: "",
     importExpenseIncludesVat: true,
     importExpenseVatDeductible: true,
@@ -103,14 +105,16 @@ export function createProfitCalculatorState(
     includeIncomeTax: true,
     insuranceInput: "",
     isImported: false,
-    marketplace: product ? getProductMarketplace(product) : "Trendyol",
+    marketplace,
     monthlySalesInput: "100",
     purchaseIncludesVat: product?.purchase_price_includes_vat ?? true,
     purchasePriceInput: getProfitInputValue(product?.purchase_price),
     purchaseVatRateInput: getProfitInputValue(product?.purchase_vat_rate, "20"),
     selectedCountryId: "",
     selectedProductId: product?.id ?? "",
-    shippingCostInput: "",
+    shippingCostInput: getProfitInputValue(
+      getDefaultMarketplaceShippingCost(marketplace, marketplaceSettings),
+    ),
     useProductPrice: true,
   };
 }
@@ -200,6 +204,16 @@ function getMarketplaceSetting(
       (setting) => setting.marketplace === marketplace,
     ) ??
     null
+  );
+}
+
+export function getDefaultMarketplaceShippingCost(
+  marketplace: Marketplace,
+  marketplaceSettings: MarketplaceSetting[],
+) {
+  return toProfitNumber(
+    getMarketplaceSetting(marketplace, marketplaceSettings)
+      ?.default_shipping_cost,
   );
 }
 
@@ -476,8 +490,9 @@ export function buildProfitAnalysis(
     marketplaceSettings: context.marketplaceSettings,
     rates,
   });
-  const defaultShippingCost = toProfitNumber(
-    marketplaceSetting?.default_shipping_cost,
+  const defaultShippingCost = getDefaultMarketplaceShippingCost(
+    marketplace,
+    context.marketplaceSettings,
   );
   const purchasePrice = toProfitNumber(state.purchasePriceInput);
   const monthlySales = Math.max(
@@ -554,9 +569,7 @@ export function buildProfitAnalysis(
         customsDutyRate: rates.customsDutyRate,
         domesticShippingCost,
         estimatedMonthlySales: monthlySales,
-        existingAnnualProfit: toProfitNumber(
-          state.existingAnnualProfitInput,
-        ),
+        existingAnnualProfit: 0,
         exciseTaxRate: rates.exciseTaxRate,
         freightCost: {
           amount: state.isImported ? toProfitNumber(state.freightInput) : 0,

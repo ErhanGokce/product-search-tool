@@ -100,7 +100,9 @@ describe("profit analysis builder", () => {
 
   it("uses the selected marketplace settings for commission and shipping", () => {
     const selectedProduct = product();
-    const state = createProfitCalculatorState(selectedProduct);
+    const state = createProfitCalculatorState(selectedProduct, [
+      marketplaceSetting(),
+    ]);
     const analysis = buildProfitAnalysis(state, {
       categories: [category()],
       companyExpenses: [],
@@ -113,6 +115,7 @@ describe("profit analysis builder", () => {
     expect(analysis?.marketplace).toBe("Trendyol");
     expect(analysis?.commissionRate).toBe(12);
     expect(analysis?.defaultShippingCost).toBe(49);
+    expect(state.shippingCostInput).toBe("49");
     expect(
       analysis?.scenarios.find((scenario) => scenario.key === "estimated")
         ?.result.grossSalePrice,

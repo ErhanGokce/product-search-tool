@@ -17,7 +17,6 @@ export type ProfitCalculatorState = {
   customsBaseInput: string;
   customsBrokerInput: string;
   estimatedPriceInput: string;
-  existingAnnualProfitInput: string;
   freightInput: string;
   importExpenseIncludesVat: boolean;
   importExpenseVatDeductible: boolean;

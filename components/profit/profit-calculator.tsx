@@ -67,6 +67,7 @@ import {
   buildProfitAnalysis,
   createProfitCalculatorState,
   getAutoEstimatedPrice,
+  getDefaultMarketplaceShippingCost,
   getProductMarketplace,
   getProfitInputValue,
   toProfitNumber,
@@ -268,7 +269,7 @@ export function ProfitCalculator({
   const initialProduct = products[0] ?? null;
   const [calculatorState, setCalculatorState] =
     useState<ProfitCalculatorState>(() =>
-      createProfitCalculatorState(initialProduct),
+      createProfitCalculatorState(initialProduct, marketplaceSettings),
     );
   const [activeStep, setActiveStep] = useState<StepNumber>(1);
   const [activeTab, setActiveTab] = useState("calculator");
@@ -361,7 +362,12 @@ export function ProfitCalculator({
       ),
       selectedCountryId: "",
       selectedProductId: product?.id ?? "",
-      shippingCostInput: "",
+      shippingCostInput: getProfitInputValue(
+        getDefaultMarketplaceShippingCost(
+          marketplace,
+          marketplaceSettings,
+        ),
+      ),
     };
   }
 
@@ -719,48 +725,27 @@ export function ProfitCalculator({
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-5">
-                  <div className="grid gap-4 sm:grid-cols-2">
-                    <FieldLabel htmlFor="shipping">
-                      Kargo ücreti
-                      <Input
-                        id="shipping"
-                        inputMode="decimal"
-                        min="0"
-                        onChange={(event) =>
-                          updateState(
-                            "shippingCostInput",
-                            event.target.value,
-                          )
-                        }
-                        placeholder={String(
-                          analysis?.defaultShippingCost || "0.00",
-                        )}
-                        step="0.01"
-                        type="number"
-                        value={calculatorState.shippingCostInput}
-                      />
-                      <span className="block text-xs font-normal text-muted-foreground">
-                        Boşsa pazaryeri varsayılanı kullanılır.
-                      </span>
-                    </FieldLabel>
-                    <FieldLabel htmlFor="existing-profit">
-                      Mevcut yıllık kâr varsayımı
-                      <Input
-                        id="existing-profit"
-                        inputMode="decimal"
-                        min="0"
-                        onChange={(event) =>
-                          updateState(
-                            "existingAnnualProfitInput",
-                            event.target.value,
-                          )
-                        }
-                        step="0.01"
-                        type="number"
-                        value={calculatorState.existingAnnualProfitInput}
-                      />
-                    </FieldLabel>
-                  </div>
+                  <FieldLabel htmlFor="shipping">
+                    Kargo ücreti
+                    <Input
+                      id="shipping"
+                      inputMode="decimal"
+                      min="0"
+                      onChange={(event) =>
+                        updateState(
+                          "shippingCostInput",
+                          event.target.value,
+                        )
+                      }
+                      step="0.01"
+                      type="number"
+                      value={calculatorState.shippingCostInput}
+                    />
+                    <span className="block text-xs font-normal text-muted-foreground">
+                      {calculatorState.marketplace} ayarlarından otomatik
+                      getirildi; bu hesaplama için değiştirebilirsiniz.
+                    </span>
+                  </FieldLabel>
 
                   <TogglePanel
                     checked={calculatorState.includeIncomeTax}
