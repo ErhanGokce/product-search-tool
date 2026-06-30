@@ -83,7 +83,7 @@ function CountryFormDialog({ country }: { country?: CountrySetting }) {
         <Button
           className={cn(
             "rounded-2xl",
-            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+            isEdit && "h-9 border-border bg-card px-3 text-foreground shadow-sm",
           )}
           size={isEdit ? "sm" : "default"}
           type="button"
@@ -185,7 +185,7 @@ function CountryFormDialog({ country }: { country?: CountrySetting }) {
             >
               Notlar
               <textarea
-                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-950"
+                className="min-h-24 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/35 dark:bg-surface-elevated"
                 defaultValue={country?.notes ?? ""}
                 id={isEdit ? `country-notes-${country?.id}` : "country-notes"}
                 name="notes"
@@ -213,37 +213,37 @@ function CountryFormDialog({ country }: { country?: CountrySetting }) {
 
 function CountryRow({ country }: { country: CountrySetting }) {
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[1.2fr_0.45fr_0.65fr_1fr_auto] lg:items-center">
+    <div className="grid gap-3 rounded-2xl border border-border bg-surface-elevated p-4 lg:grid-cols-[1.2fr_0.45fr_0.65fr_1fr_auto] lg:items-center">
       <div className="min-w-0">
-        <p className="truncate text-sm font-semibold text-slate-950">
+        <p className="truncate text-sm font-semibold text-foreground">
           {country.name}
         </p>
         {country.notes ? (
-          <p className="mt-1 line-clamp-2 text-xs leading-5 text-slate-500">
+          <p className="mt-1 line-clamp-2 text-xs leading-5 text-muted-foreground">
             {country.notes}
           </p>
         ) : (
-          <p className="mt-1 text-xs text-slate-400">Not yok</p>
+          <p className="mt-1 text-xs text-muted-foreground">Not yok</p>
         )}
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase text-slate-400">Kod</p>
-        <p className="mt-1 text-sm font-medium text-slate-950">
+        <p className="text-xs font-medium uppercase text-muted-foreground">Kod</p>
+        <p className="mt-1 text-sm font-medium text-foreground">
           {country.code || "-"}
         </p>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase text-slate-400">ATR</p>
+        <p className="text-xs font-medium uppercase text-muted-foreground">ATR</p>
         <div className="mt-1">
           <AtrBadge hasAtr={country.has_atr} />
         </div>
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase text-slate-400">Kontrol</p>
-        <p className="mt-1 text-sm text-slate-700">
+        <p className="text-xs font-medium uppercase text-muted-foreground">Kontrol</p>
+        <p className="mt-1 text-sm text-muted-foreground">
           {country.has_atr ? "GTIP bazında doğrula" : "Standart vergi kontrolü"}
         </p>
       </div>
@@ -253,7 +253,7 @@ function CountryRow({ country }: { country: CountrySetting }) {
         <form action={deleteCountry}>
           <input name="id" type="hidden" value={country.id} />
           <Button
-            className="h-9 w-full rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50 sm:w-auto"
+            className="h-9 w-full rounded-2xl border-red-500/25 bg-red-500/10 px-3 text-red-300 shadow-sm hover:bg-red-500/15 sm:w-auto"
             type="submit"
             variant="outline"
           >
@@ -271,10 +271,10 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
 
   return (
     <div className="space-y-4">
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card>
         <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <FileCheck2 className="h-5 w-5" aria-hidden="true" />
             </div>
             <CardTitle>İthalat ülkeleri ve ATR</CardTitle>
@@ -286,7 +286,7 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
           {countries.length > 0 ? <CountryFormDialog /> : null}
         </CardHeader>
         <CardContent>
-          <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+          <div className="rounded-2xl border border-warning-border bg-warning-surface p-4 text-sm leading-6 text-warning-foreground">
             Kâr hesabında ithalat kapalıysa kaynak yerli alış / Türkiye kabul
             edilir. ATR var diye tüm vergiler sıfırlanmaz; KDV, ÖTV, TRT
             bandrolü veya ilave mali yükümlülükler ayrıca hesaplanabilir.
@@ -294,7 +294,7 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
         </CardContent>
       </Card>
 
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card>
         <CardHeader className="gap-3 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <CardTitle>Ülkeler</CardTitle>
@@ -306,7 +306,7 @@ export function CountriesSettings({ countries }: CountriesSettingsProps) {
         </CardHeader>
         <CardContent>
           {countries.length === 0 ? (
-            <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex flex-col gap-4 rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
               <p>
                 Henüz ithalat ülkesi yok. Türkiye’yi değil, ithalat yaptığınız
                 ülkeleri ekleyin.

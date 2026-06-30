@@ -6,10 +6,8 @@ import {
   BarChart3,
   Boxes,
   Calculator,
-  ChartNoAxesCombined,
   LayoutDashboard,
   Settings,
-  Store,
   Tags,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";

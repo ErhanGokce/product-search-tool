@@ -42,7 +42,7 @@ const commissionBaseLabels: Record<CommissionBase, string> = {
 };
 
 const checkboxClassName =
-  "mt-0.5 h-4 w-4 shrink-0 rounded border border-slate-300 accent-lime-300";
+  "mt-0.5 h-4 w-4 shrink-0 rounded border border-input bg-background accent-[#d9ff8f]";
 
 function getInputValue(value: number | string | null | undefined, fallback = "") {
   if (value === null || value === undefined || value === "") {
@@ -95,7 +95,7 @@ function MarketplaceSettingForm({
   return (
     <form
       action={formAction}
-      className="rounded-2xl border border-slate-200 bg-slate-50 p-4"
+      className="rounded-2xl border border-border bg-surface-elevated p-4"
     >
       {setting ? <input name="id" type="hidden" value={setting.id} /> : null}
       <input name="marketplace" type="hidden" value={marketplace} />
@@ -303,7 +303,7 @@ function MarketplaceSettingForm({
 
 export function MarketplaceSettings({ settings }: MarketplaceSettingsProps) {
   return (
-    <Card className="border-slate-200 bg-white shadow-sm">
+    <Card>
       <CardHeader>
         <CardTitle>Pazaryeri Ayarları</CardTitle>
         <CardDescription>

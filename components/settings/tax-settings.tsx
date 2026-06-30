@@ -195,7 +195,7 @@ function TaxFormDialog({ tax }: { tax?: TaxSetting }) {
         <Button
           className={cn(
             "rounded-2xl",
-            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+            isEdit && "h-9 border-border bg-card px-3 text-foreground shadow-sm",
           )}
           size={isEdit ? "sm" : "default"}
           type="button"
@@ -388,7 +388,7 @@ function TaxFormDialog({ tax }: { tax?: TaxSetting }) {
             >
               Notlar
               <textarea
-                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-950"
+                className="min-h-24 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/35 dark:bg-surface-elevated"
                 defaultValue={tax?.notes ?? ""}
                 id={isEdit ? `tax-notes-${tax?.id}` : "tax-notes"}
                 name="notes"
@@ -418,10 +418,10 @@ function TaxRow({ tax }: { tax: TaxSetting }) {
   const monthlyCost = getMonthlyTaxFixedCost(tax);
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 xl:grid-cols-[1.1fr_0.85fr_0.55fr_0.75fr_0.85fr_0.65fr_auto] xl:items-center">
+    <div className="grid gap-3 rounded-2xl border border-border bg-surface-elevated p-4 xl:grid-cols-[1.1fr_0.85fr_0.55fr_0.75fr_0.85fr_0.65fr_auto] xl:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-semibold text-slate-950">
+          <p className="truncate text-sm font-semibold text-foreground">
             {tax.name}
           </p>
           <TaxStatusBadge isActive={tax.is_active} />
@@ -479,7 +479,7 @@ function TaxRow({ tax }: { tax: TaxSetting }) {
         <form action={deleteTaxSetting}>
           <input name="id" type="hidden" value={tax.id} />
           <Button
-            className="h-9 w-full rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50 sm:w-auto"
+            className="h-9 w-full rounded-2xl border-red-500/25 bg-red-500/10 px-3 text-red-300 shadow-sm hover:bg-red-500/15 sm:w-auto"
             type="submit"
             variant="outline"
           >
@@ -518,9 +518,9 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
   return (
     <div className="space-y-4">
       <div className="grid gap-4 xl:grid-cols-[1.1fr_0.9fr]">
-        <Card className="border-slate-200 bg-white shadow-sm">
+        <Card>
           <CardHeader>
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <Landmark className="h-5 w-5" aria-hidden="true" />
             </div>
             <CardTitle>Gelir vergisi notu</CardTitle>
@@ -532,7 +532,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-900">
+            <div className="rounded-2xl border border-warning-border bg-warning-surface p-4 text-sm leading-6 text-warning-foreground">
               Gelir vergisi kademeli yapıda olabilir. Bu ekran yalnızca oran ve
               dönemsel varsayımları saklar; gerçek vergi etkisi dönem net kârı
               üzerinden ayrıca hesaplanmalıdır.
@@ -541,7 +541,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
         </Card>
 
         <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-1">
-          <Card className="border-slate-200 bg-white shadow-sm">
+          <Card>
             <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 pb-3">
               <div>
                 <CardDescription>Aylık sabit vergi maliyeti</CardDescription>
@@ -549,7 +549,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
                   {formatCurrency(summary.monthlyFixedTotal)}
                 </CardTitle>
               </div>
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                 <ReceiptText className="h-5 w-5" aria-hidden="true" />
               </div>
             </CardHeader>
@@ -560,7 +560,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
             </CardContent>
           </Card>
 
-          <Card className="border-slate-200 bg-white shadow-sm">
+          <Card>
             <CardHeader className="pb-3">
               <CardDescription>Yıllıklaştırılmış sabit maliyet</CardDescription>
               <CardTitle className="mt-1 text-3xl">
@@ -578,7 +578,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
         </div>
       </div>
 
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card>
         <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle>Vergiler</CardTitle>
@@ -592,7 +592,7 @@ export function TaxSettings({ taxSettings }: TaxSettingsProps) {
         </CardHeader>
         <CardContent>
           {taxSettings.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">
+            <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
               Henüz vergi ayarı yok. Başlamak için bir vergi ayarı ekleyin.
             </div>
           ) : (

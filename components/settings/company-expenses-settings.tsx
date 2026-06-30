@@ -148,7 +148,7 @@ function ExpenseFormDialog({ expense }: { expense?: CompanyExpense }) {
         <Button
           className={cn(
             "rounded-2xl",
-            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+            isEdit && "h-9 border-border bg-card px-3 text-foreground shadow-sm",
           )}
           size={isEdit ? "sm" : "default"}
           type="button"
@@ -353,7 +353,7 @@ function ExpenseFormDialog({ expense }: { expense?: CompanyExpense }) {
             >
               Notlar
               <textarea
-                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-950"
+                className="min-h-24 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/35 dark:bg-surface-elevated"
                 defaultValue={expense?.notes ?? ""}
                 id={isEdit ? `expense-notes-${expense?.id}` : "expense-notes"}
                 name="notes"
@@ -399,10 +399,10 @@ function ExpenseRow({ expense }: { expense: CompanyExpense }) {
   const vatLabel = expense.vat_deductible ? "İndirilebilir" : "Gider";
 
   return (
-    <div className="grid gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-4 lg:grid-cols-[1.4fr_0.65fr_0.65fr_0.7fr_0.65fr_0.7fr_auto] lg:items-center">
+    <div className="grid gap-3 rounded-2xl border border-border bg-surface-elevated p-4 lg:grid-cols-[1.4fr_0.65fr_0.65fr_0.7fr_0.65fr_0.7fr_auto] lg:items-center">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="truncate text-sm font-semibold text-slate-950">
+          <p className="truncate text-sm font-semibold text-foreground">
             {expense.name}
           </p>
           <ExpenseStatusBadge isActive={expense.is_active} />
@@ -462,7 +462,7 @@ function ExpenseRow({ expense }: { expense: CompanyExpense }) {
         <form action={deleteCompanyExpense}>
           <input name="id" type="hidden" value={expense.id} />
           <Button
-            className="h-9 w-full rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50 sm:w-auto"
+            className="h-9 w-full rounded-2xl border-red-500/25 bg-red-500/10 px-3 text-red-300 shadow-sm hover:bg-red-500/15 sm:w-auto"
             type="submit"
             variant="outline"
           >
@@ -503,7 +503,7 @@ export function CompanyExpensesSettings({
   return (
     <div className="space-y-4">
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        <Card className="border-slate-200 bg-white shadow-sm">
+        <Card>
           <CardHeader className="flex-row items-start justify-between gap-4 space-y-0 pb-3">
             <div>
               <CardDescription>Toplam aylık gider</CardDescription>
@@ -511,7 +511,7 @@ export function CompanyExpensesSettings({
                 {formatCurrency(summary.monthlyTotal)}
               </CardTitle>
             </div>
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-slate-100 text-slate-700">
+            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
               <WalletCards className="h-5 w-5" aria-hidden="true" />
             </div>
           </CardHeader>
@@ -522,7 +522,7 @@ export function CompanyExpensesSettings({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 bg-white shadow-sm">
+        <Card>
           <CardHeader className="pb-3">
             <CardDescription>Yıllıklaştırılmış gider</CardDescription>
             <CardTitle className="mt-1 text-3xl">
@@ -536,7 +536,7 @@ export function CompanyExpensesSettings({
           </CardContent>
         </Card>
 
-        <Card className="border-slate-200 bg-white shadow-sm md:col-span-2 xl:col-span-1">
+        <Card className="md:col-span-2 xl:col-span-1">
           <CardHeader className="pb-3">
             <CardDescription>Tek seferlik giderler</CardDescription>
             <CardTitle className="mt-1 text-3xl">
@@ -551,7 +551,7 @@ export function CompanyExpensesSettings({
         </Card>
       </div>
 
-      <Card className="border-slate-200 bg-white shadow-sm">
+      <Card>
         <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div className="space-y-1.5">
             <CardTitle>Şirket Giderleri</CardTitle>
@@ -564,7 +564,7 @@ export function CompanyExpensesSettings({
         </CardHeader>
         <CardContent>
           {expenses.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-slate-200 p-6 text-sm text-slate-500">
+            <div className="rounded-2xl border border-dashed border-border p-6 text-sm text-muted-foreground">
               Henüz şirket gideri yok. Başlamak için bir gider ekleyin.
             </div>
           ) : (

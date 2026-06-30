@@ -171,11 +171,11 @@ function RateCell({
 
   return (
     <div className="min-w-20">
-      <span className="font-medium text-slate-950">
+      <span className="font-medium text-foreground">
         {formatRateValue(value)}
       </span>
       {isInherited && value !== null && value !== undefined && value !== "" ? (
-        <span className="ml-2 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+        <span className="ml-2 inline-flex rounded-full bg-muted px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
           miras
         </span>
       ) : null}
@@ -211,7 +211,7 @@ function CategoryFormDialog({
         <Button
           className={cn(
             "rounded-2xl",
-            isEdit && "h-9 border-slate-200 bg-white px-3 text-slate-700 shadow-sm",
+            isEdit && "h-9 border-border bg-card px-3 text-foreground shadow-sm",
           )}
           size={isEdit ? "sm" : "default"}
           type="button"
@@ -352,7 +352,7 @@ function CategoryFormDialog({
             >
               Notlar
               <textarea
-                className="min-h-24 w-full rounded-2xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 shadow-sm outline-none transition-colors placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-slate-950"
+                className="min-h-24 w-full rounded-2xl border border-input bg-background px-3 py-2 text-sm text-foreground shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring/35 dark:bg-surface-elevated"
                 defaultValue={category?.notes ?? ""}
                 id={isEdit ? `notes-${category?.id}` : "notes"}
                 name="notes"
@@ -393,7 +393,7 @@ function CategoryRows({
   if (categories.length === 0) {
     return (
       <TableRow>
-        <TableCell className="py-8 text-center text-slate-500" colSpan={12}>
+        <TableCell className="py-8 text-center text-muted-foreground" colSpan={12}>
           Henüz kategori yok. Vergi ve komisyon oranlarını tanımlamak için
           kategori ekleyin.
         </TableCell>
@@ -409,10 +409,10 @@ function CategoryRows({
 
     return (
       <TableRow key={category.id}>
-        <TableCell className="min-w-44 font-medium text-slate-950">
+        <TableCell className="min-w-44 font-medium text-foreground">
           {parent?.name ?? category.name}
         </TableCell>
-        <TableCell className="min-w-44 text-slate-700">
+        <TableCell className="min-w-44 text-muted-foreground">
           {parent ? category.name : "-"}
         </TableCell>
         {rateFields.map((field) => (
@@ -420,7 +420,7 @@ function CategoryRows({
             <RateCell category={category} field={field} parent={parent} />
           </TableCell>
         ))}
-        <TableCell className="min-w-36 text-slate-700">{gtip}</TableCell>
+        <TableCell className="min-w-36 text-muted-foreground">{gtip}</TableCell>
         <TableCell className="min-w-40">
           <div className="flex gap-2">
             <CategoryFormDialog
@@ -430,7 +430,7 @@ function CategoryRows({
             <form action={deleteCategory}>
               <input name="id" type="hidden" value={category.id} />
               <Button
-                className="h-9 rounded-2xl border-red-200 bg-white px-3 text-red-600 shadow-sm hover:bg-red-50"
+                className="h-9 rounded-2xl border-red-500/25 bg-red-500/10 px-3 text-red-300 shadow-sm hover:bg-red-500/15"
                 size="sm"
                 type="submit"
                 variant="outline"
@@ -453,7 +453,7 @@ export function CategoryManager({ categories }: CategoryManagerProps) {
   );
 
   return (
-    <Card className="border-slate-200 bg-white shadow-sm">
+    <Card>
       <CardHeader className="gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="space-y-1.5">
           <CardTitle>Kategori Vergi ve Komisyon Ayarları</CardTitle>

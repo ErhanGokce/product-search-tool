@@ -58,7 +58,6 @@ export type ProfitCalculationInput = {
   marketplaceCommissionRate: number;
   marketplaceCommissionVatRate: number;
   marketplaceServiceFee: VatAmountInput;
-  packagingCost: VatAmountInput;
   purchasePrice: number;
   purchasePriceIncludesVat: boolean;
   purchaseVatRate: number;
@@ -93,7 +92,6 @@ export type ProfitCalculationResult = {
   netProfit: number;
   operationNetCosts: number;
   outputVat: number;
-  packagingCost: number;
   profitBeforeIncomeTax: number;
   purchaseGross: number;
   purchaseNet: number;
@@ -271,7 +269,6 @@ function calculateProfitCore(input: ProfitCalculationInput) {
     "operation",
     input.domesticShippingCost,
   );
-  const packaging = asExpense("packaging", "Paketleme", "operation", input.packagingCost);
   const marketplaceService = asExpense(
     "marketplaceService",
     "Pazaryeri hizmet bedeli",
@@ -334,7 +331,6 @@ function calculateProfitCore(input: ProfitCalculationInput) {
     marketplaceCommissionExpense,
     marketplaceService,
     domesticShipping,
-    packaging,
     customsBroker,
     freight,
     insurance,
@@ -342,7 +338,7 @@ function calculateProfitCore(input: ProfitCalculationInput) {
   ];
   const marketplaceNetFees =
     marketplaceCommission.profitCost + marketplaceService.profitCost;
-  const operationNetCosts = domesticShipping.profitCost + packaging.profitCost;
+  const operationNetCosts = domesticShipping.profitCost;
   const deductibleVatFromExpenses = expenseBreakdown.reduce(
     (total, expense) => total + expense.deductibleVat,
     0,
@@ -399,7 +395,6 @@ function calculateProfitCore(input: ProfitCalculationInput) {
     netProfit,
     operationNetCosts,
     outputVat,
-    packagingCost: packaging.profitCost,
     profitBeforeIncomeTax,
     purchaseGross: purchase.grossAmount,
     purchaseNet: purchase.netAmount,

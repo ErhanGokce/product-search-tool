@@ -8,6 +8,7 @@ import type {
   MarketplaceSetting,
   TaxSetting,
 } from "@/components/settings/types";
+import type { ProfitSnapshot } from "@/lib/profit/types";
 import { createClient } from "@/lib/supabase/server";
 
 export default async function ProfitCalculationPage() {
@@ -27,6 +28,7 @@ export default async function ProfitCalculationPage() {
     marketplaceSettingsResult,
     taxSettingsResult,
     countriesResult,
+    snapshotsResult,
   ] = await Promise.all([
     supabase
       .from("product_pool")
@@ -66,6 +68,13 @@ export default async function ProfitCalculationPage() {
       .select("id,user_id,name,code,has_atr,notes,created_at")
       .eq("user_id", user.id)
       .order("name", { ascending: true }),
+    supabase
+      .from("profit_calculation_snapshots")
+      .select(
+        "id,user_id,product_id,product_name,marketplace,primary_scenario,gross_sale_price,net_profit,net_margin,roi,status,input_snapshot,scenarios_snapshot,warnings,created_at",
+      )
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
   ]);
 
   if (productsResult.error) {
@@ -98,6 +107,17 @@ export default async function ProfitCalculationPage() {
     throw new Error(`Ulkeler yuklenemedi: ${countriesResult.error.message}`);
   }
 
+  const snapshotStorageAvailable = !snapshotsResult.error;
+
+  if (
+    snapshotsResult.error &&
+    snapshotsResult.error.code !== "PGRST205"
+  ) {
+    throw new Error(
+      `Kar hesaplama gecmisi yuklenemedi: ${snapshotsResult.error.message}`,
+    );
+  }
+
   return (
     <div className="app-page">
       <section>
@@ -119,6 +139,8 @@ export default async function ProfitCalculationPage() {
           (marketplaceSettingsResult.data ?? []) as MarketplaceSetting[]
         }
         products={(productsResult.data ?? []) as ProductPoolItem[]}
+        snapshots={(snapshotsResult.data ?? []) as unknown as ProfitSnapshot[]}
+        snapshotStorageAvailable={snapshotStorageAvailable}
         taxSettings={(taxSettingsResult.data ?? []) as TaxSetting[]}
       />
     </div>

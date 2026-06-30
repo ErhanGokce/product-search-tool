@@ -88,7 +88,7 @@ export function getOpportunityScoreMeta(score: number) {
   }
 
   return {
-    className: "bg-red-500/12 text-red-300",
+    className: "bg-red-500/15 text-red-300",
     label: "Zayif",
   };
 }

@@ -49,7 +49,6 @@ function baseInput(
     marketplaceCommissionRate: 0,
     marketplaceCommissionVatRate: 20,
     marketplaceServiceFee: vatInput(),
-    packagingCost: vatInput(),
     purchasePrice: 600,
     purchasePriceIncludesVat: true,
     purchaseVatRate: 20,
@@ -170,21 +169,21 @@ describe("calculateProfit", () => {
     expect(withoutAtr.landedCost - withAtr.landedCost).toBeCloseTo(110);
   });
 
-  it("does not double-count deductible expense VAT as profit cost", () => {
+  it("does not double-count deductible shipping VAT as profit cost", () => {
     const deductible = calculateProfit(
       baseInput({
-        packagingCost: vatInput(120, true, 20, true),
+        domesticShippingCost: vatInput(120, true, 20, true),
       }),
     );
     const nonDeductible = calculateProfit(
       baseInput({
-        packagingCost: vatInput(120, true, 20, false),
+        domesticShippingCost: vatInput(120, true, 20, false),
       }),
     );
 
-    expect(deductible.packagingCost).toBeCloseTo(100);
+    expect(deductible.shippingCost).toBeCloseTo(100);
     expect(deductible.deductibleVatFromExpenses).toBeCloseTo(20);
-    expect(nonDeductible.packagingCost).toBeCloseTo(120);
+    expect(nonDeductible.shippingCost).toBeCloseTo(120);
     expect(nonDeductible.deductibleVatFromExpenses).toBeCloseTo(0);
   });
 
@@ -193,14 +192,14 @@ describe("calculateProfit", () => {
       baseInput({
         includeIncomeTax: true,
         marketplaceCommissionRate: 12,
-        packagingCost: vatInput(60, true, 20, true),
+        domesticShippingCost: vatInput(60, true, 20, true),
       }),
     );
     const atMinimum = calculateProfit({
       ...baseInput({
         includeIncomeTax: true,
         marketplaceCommissionRate: 12,
-        packagingCost: vatInput(60, true, 20, true),
+        domesticShippingCost: vatInput(60, true, 20, true),
       }),
       grossSalePrice: result.minimumSalePrice,
     });

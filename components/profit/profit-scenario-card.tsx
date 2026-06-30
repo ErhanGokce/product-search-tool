@@ -40,7 +40,7 @@ function getStatusClassName(status: ProfitStatus) {
   }
 
   if (status === "Riskli") {
-    return "bg-amber-400/15 text-amber-300";
+    return "bg-warning-surface text-warning-accent";
   }
 
   return "bg-red-500/15 text-red-300";

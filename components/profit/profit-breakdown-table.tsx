@@ -45,7 +45,6 @@ const rows: Row[] = [
   { key: "marketplaceCommissionTotal", label: "Komisyon toplam kesinti" },
   { key: "marketplaceNetFees", label: "Pazaryeri net giderleri" },
   { key: "shippingCost", label: "Kargo net gideri" },
-  { key: "packagingCost", label: "Paketleme net gideri" },
   { key: "operationNetCosts", label: "Operasyon net giderleri" },
   { key: "deductibleVatFromExpenses", label: "Giderlerden indirilecek KDV" },
   { key: "inputVatTotal", label: "Toplam indirilecek KDV" },
